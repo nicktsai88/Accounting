@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#17324d">
+    <meta name="theme-color" content="#f472b6">
     <meta name="application-name" content="Accounting">
-    <title>Accounting｜結賬紀錄表</title>
+    <title>🌸 Accounting｜囍事快剪結賬紀錄表 ✨</title>
     <style>
         :root {
-            --navy: #17324d;
-            --navy-2: #244866;
-            --ink: #1c2a36;
-            --muted: #667684;
-            --canvas: #f4f2ed;
+            --navy: #9d174d;
+            --navy-2: #be185d;
+            --ink: #6b2147;
+            --muted: #9d6880;
+            --canvas: #fff1f6;
             --surface: #ffffff;
-            --line: #dfe5e8;
-            --soft: #edf2f4;
-            --amber: #d99a2b;
-            --amber-soft: #fff3d7;
-            --teal: #17806d;
-            --teal-soft: #e4f4f0;
-            --red: #c64a4a;
-            --red-soft: #fbeaea;
+            --line: #f8c7d9;
+            --soft: #fff0f5;
+            --amber: #fb7185;
+            --amber-soft: #ffe4ec;
+            --teal: #ec4899;
+            --teal-soft: #fce7f3;
+            --red: #e11d48;
+            --red-soft: #fff1f2;
             --green: #16825f;
             --green-soft: #e5f5ef;
-            --shadow: 0 18px 50px rgba(25, 43, 58, .10);
-            --shadow-sm: 0 8px 24px rgba(25, 43, 58, .08);
+            --shadow: 0 18px 50px rgba(190, 24, 93, .14);
+            --shadow-sm: 0 8px 24px rgba(219, 39, 119, .10);
             --radius: 22px;
         }
 
@@ -37,9 +37,10 @@
             min-height: 100dvh;
             color: var(--ink);
             background:
-                radial-gradient(circle at 12% 3%, rgba(217, 154, 43, .11), transparent 25rem),
-                radial-gradient(circle at 93% 8%, rgba(23, 128, 109, .09), transparent 28rem),
-                var(--canvas);
+                radial-gradient(circle at 12% 3%, rgba(251, 113, 133, .22), transparent 25rem),
+                radial-gradient(circle at 93% 8%, rgba(244, 114, 182, .20), transparent 28rem),
+                radial-gradient(circle at 50% 100%, rgba(253, 164, 175, .18), transparent 32rem),
+                linear-gradient(145deg, #fff7fa 0%, #ffe5ef 52%, #fff0f6 100%);
             font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", system-ui, -apple-system, sans-serif;
             -webkit-font-smoothing: antialiased;
             -webkit-tap-highlight-color: transparent;
@@ -65,26 +66,16 @@
             min-height: 74px;
             padding: 12px max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left));
             color: #fff;
-            background: rgba(23, 50, 77, .96);
+            background: linear-gradient(120deg, rgba(190, 24, 93, .97), rgba(244, 114, 182, .96), rgba(251, 113, 133, .96));
             border-bottom: 1px solid rgba(255,255,255,.12);
             backdrop-filter: blur(16px);
         }
         .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
-        .brand-mark {
-            display: grid;
-            place-items: center;
-            width: 42px;
-            height: 42px;
-            flex: 0 0 auto;
-            border-radius: 13px;
-            background: var(--amber);
-            color: var(--navy);
-            font-weight: 900;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,.35);
-        }
+        .brand-logo-card { display: grid; place-items: center; flex: 0 0 auto; padding: 5px 9px; border-radius: 13px; background: rgba(255,255,255,.94); box-shadow: 0 8px 22px rgba(157,23,77,.18); }
+        .brand-logo { display: block; width: 132px; height: 34px; object-fit: contain; }
         .brand-copy { min-width: 0; }
         .brand-name { font-weight: 900; letter-spacing: .04em; font-size: 16px; }
-        .brand-page { margin-top: 2px; color: #d6e1e8; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .brand-page { margin-top: 2px; color: #fff5f8; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .topbar-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
         .connection-badge {
             display: inline-flex;
@@ -116,7 +107,7 @@
         .icon-button:hover, .secondary-button:hover, .primary-button:hover, .ghost-button:hover { transform: translateY(-1px); }
         .icon-button { display: inline-grid; place-items: center; width: 44px; padding: 0; background: rgba(255,255,255,.11); color: #fff; }
         .ghost-button { padding: 0 16px; background: rgba(255,255,255,.11); color: #fff; }
-        .primary-button { padding: 0 22px; background: var(--amber); color: #172a3b; box-shadow: 0 8px 20px rgba(217,154,43,.24); }
+        .primary-button { padding: 0 22px; background: linear-gradient(135deg, #fb7185, #f472b6); color: #fff; box-shadow: 0 8px 20px rgba(244,114,182,.30); }
         .secondary-button { padding: 0 18px; background: var(--soft); color: var(--navy); }
 
         .page {
@@ -142,17 +133,31 @@
             min-height: 100%;
             padding: clamp(34px, 7vw, 82px);
             color: #fff;
+            position: relative;
+            overflow: hidden;
             background:
-                linear-gradient(150deg, rgba(23,50,77,.98), rgba(36,72,102,.95)),
-                var(--navy);
+                radial-gradient(circle at 15% 10%, rgba(255,255,255,.28), transparent 16rem),
+                radial-gradient(circle at 95% 88%, rgba(255,228,236,.35), transparent 24rem),
+                linear-gradient(145deg, #be185d 0%, #ec4899 48%, #fb7185 100%);
         }
-        .login-brand { display: flex; align-items: center; gap: 14px; }
-        .login-brand .brand-mark { width: 52px; height: 52px; border-radius: 16px; }
-        .login-copy { max-width: 580px; padding: 68px 0; }
-        .login-copy .eyebrow { color: #f2bd59; }
+        .login-brand { position: relative; z-index: 2; display: flex; align-items: center; gap: 14px; }
+        .login-brand .brand-logo-card { padding: 7px 12px; border-radius: 16px; }
+        .login-brand .brand-logo { width: min(250px, 34vw); height: 54px; }
+        .login-copy { position: relative; z-index: 2; max-width: 580px; padding: 68px 0; }
+        .login-copy .eyebrow { color: #fff0a8; }
         .login-copy h1 { max-width: 11em; color: #fff; font-size: clamp(42px, 6vw, 70px); }
-        .login-copy p { max-width: 36em; color: #d5e0e7; font-size: 17px; line-height: 1.8; }
-        .login-note { color: #9fb3c1; font-size: 12px; line-height: 1.6; }
+        .login-copy p { max-width: 36em; color: #fff4f8; font-size: 17px; line-height: 1.8; }
+        .login-note { position: relative; z-index: 2; color: #ffe6ef; font-size: 12px; line-height: 1.6; }
+        .hero-logo-card { width: min(470px, 100%); margin-bottom: 34px; padding: 16px 22px; border: 2px solid rgba(255,255,255,.62); border-radius: 24px; background: rgba(255,255,255,.95); box-shadow: 0 20px 50px rgba(122,20,64,.22); transform: rotate(-1deg); }
+        .hero-logo-card img { display: block; width: 100%; height: auto; }
+        .emoji-ribbon { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; font-size: 26px; filter: drop-shadow(0 4px 7px rgba(122,20,64,.2)); }
+        .sakura-sprinkles { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+        .sakura-sprinkles span { position: absolute; opacity: .32; filter: drop-shadow(0 5px 8px rgba(122,20,64,.18)); }
+        .sakura-sprinkles span:nth-child(1) { left: 7%; top: 18%; font-size: 34px; transform: rotate(-14deg); }
+        .sakura-sprinkles span:nth-child(2) { right: 9%; top: 12%; font-size: 46px; transform: rotate(18deg); }
+        .sakura-sprinkles span:nth-child(3) { left: 17%; bottom: 12%; font-size: 54px; transform: rotate(12deg); }
+        .sakura-sprinkles span:nth-child(4) { right: 13%; bottom: 24%; font-size: 30px; transform: rotate(-18deg); }
+        .sakura-sprinkles span:nth-child(5) { left: 45%; top: 4%; font-size: 26px; }
         .login-select {
             display: flex;
             flex-direction: column;
@@ -175,7 +180,7 @@
             cursor: pointer;
             transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
         }
-        .profile-card::after { content: ""; position: absolute; width: 160px; height: 160px; right: -72px; bottom: -70px; border-radius: 50%; background: var(--profile-soft); }
+        .profile-card::after { content: "🌸"; position: absolute; display: grid; place-items: center; width: 160px; height: 160px; right: -72px; bottom: -70px; border-radius: 50%; background: var(--profile-soft); font-size: 54px; }
         .profile-card:hover { transform: translateY(-5px); border-color: var(--profile); box-shadow: var(--shadow); }
         .profile-avatar {
             position: relative;
@@ -187,7 +192,7 @@
             margin-bottom: 34px;
             border-radius: 26px;
             color: #fff;
-            background: var(--profile);
+            background: linear-gradient(145deg, var(--profile), #fb7185);
             font-size: 34px;
             font-weight: 900;
             box-shadow: 0 12px 24px color-mix(in srgb, var(--profile) 26%, transparent);
@@ -203,8 +208,8 @@
         .year-value { min-width: 100px; text-align: center; color: var(--navy); font-size: 20px; font-weight: 900; }
 
         .month-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
-        .month-card { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,255,255,.91); box-shadow: var(--shadow-sm); }
-        .month-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px 15px; border-bottom: 1px solid var(--line); }
+        .month-card { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,255,255,.93); box-shadow: var(--shadow-sm); }
+        .month-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px 15px; border-bottom: 1px solid var(--line); background: linear-gradient(135deg, #fff7fa, #ffe4ee); }
         .month-card-header h2 { margin: 0; color: var(--navy); font-size: 21px; }
         .month-count { padding: 5px 9px; border-radius: 999px; background: var(--soft); color: var(--muted); font-size: 11px; font-weight: 900; }
         .slot-list { display: grid; gap: 9px; padding: 14px; }
@@ -218,14 +223,14 @@
             gap: 11px;
             padding: 10px 12px;
             text-align: left;
-            border: 1px dashed #cbd5db;
+            border: 1px dashed #f4aac7;
             border-radius: 15px;
             background: #fbfcfc;
             cursor: pointer;
             transition: background .18s ease, border-color .18s ease, transform .18s ease;
         }
-        .closing-slot:hover { transform: translateY(-1px); border-color: var(--teal); background: #f4faf8; }
-        .closing-slot.has-date { padding-right: 48px; border-style: solid; border-color: #cde1dc; background: var(--teal-soft); }
+        .closing-slot:hover { transform: translateY(-1px); border-color: var(--teal); background: #fff3f7; }
+        .closing-slot.has-date { padding-right: 48px; border-style: solid; border-color: #f5b6cf; background: linear-gradient(135deg, #fff1f6, var(--teal-soft)); }
         .slot-number { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; color: var(--navy); background: var(--soft); font-weight: 900; }
         .has-date .slot-number { color: #fff; background: var(--teal); }
         .slot-copy { min-width: 0; }
@@ -255,9 +260,9 @@
             gap: 16px;
             margin-bottom: 20px;
             padding: 18px 20px;
-            border: 1px solid #d4e5e0;
+            border: 1px solid #f6bed2;
             border-radius: var(--radius);
-            background: linear-gradient(135deg, #f8fbfa, var(--teal-soft));
+            background: linear-gradient(135deg, #fff8fb, #ffe4ee, var(--teal-soft));
         }
         .back-button { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 15px; border: 1px solid var(--line); border-radius: 13px; background: #fff; color: var(--navy); font-weight: 900; cursor: pointer; }
         .closing-date { color: var(--navy); font-size: 20px; font-weight: 900; }
@@ -267,11 +272,11 @@
 
         .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); }
         .summary-table { width: 100%; min-width: 950px; border-collapse: separate; border-spacing: 0; }
-        .summary-table th { position: sticky; top: 0; z-index: 2; padding: 15px 12px; color: #fff; background: var(--navy); font-size: 12px; letter-spacing: .02em; text-align: right; white-space: nowrap; }
+        .summary-table th { position: sticky; top: 0; z-index: 2; padding: 15px 12px; color: #fff; background: linear-gradient(135deg, #be185d, #ec4899); font-size: 12px; letter-spacing: .02em; text-align: right; white-space: nowrap; }
         .summary-table th:first-child { left: 0; z-index: 4; min-width: 160px; text-align: left; }
         .summary-table td { height: 66px; padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; font-weight: 800; white-space: nowrap; }
         .summary-table tbody tr:last-child td { border-bottom: 0; }
-        .summary-table tbody tr:hover td { background: #f9fbfb; }
+        .summary-table tbody tr:hover td { background: #fff5f8; }
         .summary-table td:first-child { position: sticky; left: 0; z-index: 1; background: #fff; text-align: left; }
         .branch-cell { display: flex; align-items: center; gap: 10px; }
         .branch-button {
@@ -289,15 +294,15 @@
             transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
         }
         .branch-button:hover { transform: translateY(-1px); border-color: var(--amber); box-shadow: var(--shadow-sm); }
-        .store-icon { position: relative; display: grid; place-items: end center; width: 34px; height: 34px; border-radius: 10px; background: var(--amber-soft); overflow: hidden; }
-        .store-icon::before { content: ""; position: absolute; top: 8px; width: 24px; height: 8px; border-radius: 2px 2px 5px 5px; background: var(--amber); box-shadow: inset 6px 0 #f4cb7c, inset -6px 0 #f4cb7c; }
-        .store-icon::after { content: ""; width: 19px; height: 15px; border: 2px solid var(--navy); border-bottom: 0; background: #fff; }
+        .store-icon { position: relative; display: grid; place-items: center; width: 38px; height: 38px; border: 2px solid #ffc4d9; border-radius: 13px; background: linear-gradient(145deg, #fffafc, #ffe4ee); overflow: hidden; box-shadow: 0 5px 12px rgba(236,72,153,.16); font-size: 23px; }
+        .store-icon::before { content: "💈"; filter: drop-shadow(0 2px 3px rgba(190,24,93,.15)); }
+        .store-icon::after { content: none; }
         .branch-status { color: var(--teal); font-size: 11px; }
-        .locked-cell { color: #425361; background: #fcfdfd; cursor: not-allowed; user-select: none; }
+        .locked-cell { color: #7c3659; background: #fffafd; cursor: not-allowed; user-select: none; }
         .locked-cell.empty { color: #b5bfc5; font-weight: 600; }
         .diff-positive { color: var(--green) !important; background: var(--green-soft) !important; }
         .diff-negative { color: var(--red) !important; background: var(--red-soft) !important; }
-        .total-row td { position: sticky; bottom: 0; z-index: 1; color: var(--navy); background: #eef2f4 !important; border-top: 2px solid #c9d3d9; border-bottom: 0; font-weight: 900; }
+        .total-row td { position: sticky; bottom: 0; z-index: 1; color: var(--navy); background: #ffe8f0 !important; border-top: 2px solid #f3b5cd; border-bottom: 0; font-weight: 900; }
         .total-row td:first-child { z-index: 3; }
 
         .modal-backdrop {
@@ -370,10 +375,11 @@
         }
         @media (max-width: 620px) {
             .topbar { min-height: 66px; padding: 10px 14px; }
-            .brand-page { display: none; }
+            .brand-logo { width: 92px; height: 30px; }
+            .brand-copy { display: none; }
             .connection-badge { max-width: 122px; overflow: hidden; }
             .ghost-button { width: 44px; padding: 0; font-size: 0; }
-            .ghost-button::after { content: "↩"; font-size: 20px; }
+            .ghost-button::after { content: "👋"; font-size: 20px; }
             .page { padding: 24px 14px 40px; }
             .page-heading { align-items: flex-start; }
             .page-heading .lead { max-width: 18em; }
@@ -436,11 +442,11 @@
 
         const profiles = {
             '小雯': {
-                color: '#b46f31', soft: '#f7eadc',
+                color: '#ec4899', soft: '#fce7f3', emoji: '🌷',
                 branches: ['陽明', '大昌', '建興', '後昌', '左營', '明誠', '華榮', '光遠', '大社', '內惟', '一心', '五甲', '瑞隆', '德惠']
             },
             '彩屏': {
-                color: '#277b73', soft: '#e3f1ef',
+                color: '#fb7185', soft: '#ffe4ec', emoji: '🌈',
                 branches: ['自由', '福山', '大寮', '復興', '鼎中', '十全', '草屯', '華夏', '武廟', '小港']
             }
         };
@@ -540,10 +546,10 @@
         function pad(number) { return String(number).padStart(2, '0'); }
 
         function connectionMeta() {
-            if (connectionStatus === 'online') return { text: '雲端已同步', className: 'online' };
-            if (connectionStatus === 'saving') return { text: '正在儲存', className: 'saving' };
-            if (connectionStatus === 'offline') return { text: '離線儲存', className: 'offline' };
-            return { text: '連線中', className: 'saving' };
+            if (connectionStatus === 'online') return { text: '☁️ 雲端已同步 ✨', className: 'online' };
+            if (connectionStatus === 'saving') return { text: '💾 正在儲存...', className: 'saving' };
+            if (connectionStatus === 'offline') return { text: '📱 離線儲存', className: 'offline' };
+            return { text: '🌸 連線中...', className: 'saving' };
         }
 
         function connectionBadge() {
@@ -564,15 +570,15 @@
             return `
                 <header class="topbar">
                     <div class="brand">
-                        <div class="brand-mark" aria-hidden="true">A</div>
+                        <div class="brand-logo-card"><img class="brand-logo" src="assets/logo.png" alt="囍事快剪"></div>
                         <div class="brand-copy">
-                            <div class="brand-name">Accounting</div>
-                            <div class="brand-page">${pageName} · ${username}</div>
+                            <div class="brand-name">🌸 Accounting ✨</div>
+                            <div class="brand-page">${pageName} · ${username} 💖</div>
                         </div>
                     </div>
                     <div class="topbar-actions">
                         ${connectionBadge()}
-                        <button class="ghost-button" type="button" onclick="logout()">切換使用者</button>
+                        <button class="ghost-button" type="button" onclick="logout()">👋 切換使用者</button>
                     </div>
                 </header>`;
         }
@@ -590,29 +596,32 @@
             app.innerHTML = `
                 <section class="login-page">
                     <div class="login-intro">
+                        <div class="sakura-sprinkles" aria-hidden="true"><span>🌸</span><span>🌺</span><span>🌸</span><span>💮</span><span>✨</span></div>
                         <div class="login-brand">
-                            <div class="brand-mark" aria-hidden="true">A</div>
-                            <div><strong>Accounting</strong><br><span style="color:#b5c6d1;font-size:12px">Weekly closing records</span></div>
+                            <div class="brand-logo-card"><img class="brand-logo" src="assets/logo.png" alt="囍事快剪"></div>
+                            <div><strong>🌸 Accounting 🌸</strong><br><span style="color:#fff3f7;font-size:12px">✨ Weekly closing records ✨</span></div>
                         </div>
                         <div class="login-copy">
-                            <p class="eyebrow">結賬紀錄表</p>
-                            <h1>每週結賬，清楚又準確。</h1>
-                            <p>選擇你的帳號，依日期進入當週統計表。日期、分店金額與差額會分開保存。</p>
+                            <div class="hero-logo-card"><img src="assets/logo.png" alt="囍事快剪 Logo"></div>
+                            <p class="eyebrow">🌸 結賬紀錄表 🌸</p>
+                            <h1>✨ 每週結賬，清楚又可愛！✨</h1>
+                            <p>💗 選擇你的帳號，依日期進入當週統計表。📅 日期、🏪 分店金額與 ⚖️ 差額都會分開保存。</p>
+                            <div class="emoji-ribbon" aria-hidden="true">🌸 💇‍♀️ ✂️ 💖 🧾 💰 🪙 🎀 🌈 ✨</div>
                         </div>
-                        <div class="login-note">資料優先儲存於本機；連上網路後會同步至 Accounting 雲端資料區。</div>
+                        <div class="login-note">📱 資料優先儲存於本機；連上網路後會同步至 ☁️ Accounting 雲端資料區。✨</div>
                     </div>
                     <div class="login-select">
                         <div class="login-select-inner">
-                            <p class="eyebrow">快速登入</p>
-                            <h2>今天由誰結賬？</h2>
-                            <p class="lead">點選專屬圖示，進入各自的日期表與分店清單。</p>
+                            <p class="eyebrow">🌷 快速登入 🌷</p>
+                            <h2>💖 今天由誰結賬？</h2>
+                            <p class="lead">👆 點選專屬圖示，進入各自的 📅 日期表與 🏪 分店清單。</p>
                             <div class="profile-grid">
                                 ${Object.entries(profiles).map(([name, profile]) => `
                                     <button class="profile-card" style="--profile:${profile.color};--profile-soft:${profile.soft}" type="button" onclick="login('${name}')" aria-label="以${name}身分登入">
-                                        <span class="profile-enter" aria-hidden="true">→</span>
-                                        <span class="profile-avatar" aria-hidden="true">${name.slice(-1)}</span>
-                                        <h3>${name}</h3>
-                                        <span class="profile-meta">${profile.branches.length} 間分店</span>
+                                        <span class="profile-enter" aria-hidden="true">🚀</span>
+                                        <span class="profile-avatar" aria-hidden="true">${profile.emoji}</span>
+                                        <h3>👩‍💼 ${name}</h3>
+                                        <span class="profile-meta">🏪 ${profile.branches.length} 間分店 · 點我進入 ✨</span>
                                     </button>`).join('')}
                             </div>
                             <div class="login-status">${connectionBadge()}</div>
@@ -635,44 +644,44 @@
                                 <button class="closing-slot has-date" type="button" onclick="openSummary(${currentYear},${month},${slot})">
                                     <span class="slot-number">${slot}</span>
                                     <span class="slot-copy">
-                                        <span class="slot-title">${formatDate(record.date)}</span>
-                                        <span class="slot-subtitle">已完成 ${branchCount}/${profiles[username].branches.length} 間分店</span>
+                                        <span class="slot-title">📅 ${formatDate(record.date)}</span>
+                                        <span class="slot-subtitle">✅ 已完成 ${branchCount}/${profiles[username].branches.length} 間分店</span>
                                     </span>
                                 </button>
-                                <button class="date-edit" type="button" title="修改日期" aria-label="修改第 ${slot} 次結賬日期" onclick="event.stopPropagation();openDateDialog(${currentYear},${month},${slot})">✎</button>
+                                <button class="date-edit" type="button" title="修改日期" aria-label="修改第 ${slot} 次結賬日期" onclick="event.stopPropagation();openDateDialog(${currentYear},${month},${slot})">✏️</button>
                             </div>`;
                     }
                     return `
                         <button class="closing-slot" type="button" onclick="openDateDialog(${currentYear},${month},${slot})">
                             <span class="slot-number">${slot}</span>
                             <span class="slot-copy">
-                                <span class="slot-title">設定結賬日期</span>
-                                <span class="slot-subtitle">第 ${slot} 次結賬</span>
+                                <span class="slot-title">🗓️ 設定結賬日期</span>
+                                <span class="slot-subtitle">🌷 第 ${slot} 次結賬</span>
                             </span>
-                            <span class="slot-arrow" aria-hidden="true">＋</span>
+                            <span class="slot-arrow" aria-hidden="true">🌸</span>
                         </button>`;
                 }).join('');
                 const setCount = Array.from({ length: 5 }, (_, i) => getRecord(currentYear, month, i + 1)?.date).filter(Boolean).length;
                 return `
                     <section class="month-card">
-                        <div class="month-card-header"><h2>${month} 月</h2><span class="month-count">${setCount}/5 已設定</span></div>
+                        <div class="month-card-header"><h2>🌸 ${month} 月</h2><span class="month-count">✨ ${setCount}/5 已設定</span></div>
                         <div class="slot-list">${slots}</div>
                     </section>`;
             }).join('');
 
             app.innerHTML = `
-                ${topbar('日期表')}
+                ${topbar('📅 日期表')}
                 <div class="page">
                     <div class="page-heading">
                         <div>
-                            <p class="eyebrow">${username}的結賬紀錄</p>
-                            <h1>選擇結賬日期</h1>
-                            <p class="lead">每月最多 5 次。空白格先設定日期，已有日期的格子可直接進入統計表。</p>
+                            <p class="eyebrow">🌷 ${username}的結賬紀錄 🌷</p>
+                            <h1>📅 選擇結賬日期 🌸</h1>
+                            <p class="lead">✨ 每月最多 5 次。空白格先設定日期，已有日期的格子可直接進入統計表。💖</p>
                         </div>
                         <div class="year-control" aria-label="年份選擇">
-                            <button type="button" onclick="changeYear(-1)" aria-label="上一年">‹</button>
-                            <span class="year-value">${currentYear}</span>
-                            <button type="button" onclick="changeYear(1)" aria-label="下一年">›</button>
+                            <button type="button" onclick="changeYear(-1)" aria-label="上一年">⬅️</button>
+                            <span class="year-value">🌸 ${currentYear} 🌸</span>
+                            <button type="button" onclick="changeYear(1)" aria-label="下一年">➡️</button>
                         </div>
                     </div>
                     <div class="month-grid">${monthCards}</div>
@@ -707,8 +716,8 @@
                             <div class="branch-cell">
                                 <button class="branch-button" type="button" onclick="openBranchEditor('${branch}')" aria-label="輸入${branch}分店金額">
                                     <span class="store-icon" aria-hidden="true"></span>
-                                    <span>${branch}</span>
-                                    <span class="branch-status">${saved ? '已填' : '待填'}</span>
+                                    <span>🌸 ${branch}</span>
+                                    <span class="branch-status">${saved ? '✅ 已填' : '📝 待填'}</span>
                                 </button>
                             </div>
                         </td>
@@ -723,31 +732,31 @@
 
             const totalDiffClass = totals.diff > 0 ? 'diff-positive' : totals.diff < 0 ? 'diff-negative' : '';
             app.innerHTML = `
-                ${topbar('當週統計總表')}
+                ${topbar('📊 當週統計總表')}
                 <div class="page">
                     <div class="summary-banner">
-                        <button class="back-button" type="button" onclick="renderCalendar()">← 返回日期表</button>
+                        <button class="back-button" type="button" onclick="renderCalendar()">🌸 ← 返回日期表</button>
                         <div>
-                            <div class="closing-date">${formatDate(record.date, true)}</div>
-                            <div class="closing-context">${year} 年 ${month} 月 · 第 ${slot} 次結賬 · ${username}</div>
+                            <div class="closing-date">📅 ${formatDate(record.date, true)} 🌸</div>
+                            <div class="closing-context">✨ ${year} 年 ${month} 月 · 第 ${slot} 次結賬 · ${username} 💖</div>
                         </div>
-                        <div class="progress-pill">已填 ${savedCount}/${branches.length}</div>
+                        <div class="progress-pill">✅ 已填 ${savedCount}/${branches.length} ✨</div>
                     </div>
-                    <p class="formula-note">統計表已鎖定，只能點選左側分店圖示輸入金額。實際營收小計＝紙鈔＋硬幣；正負差額＝售票機應收金額－實際營收小計－零用金支出。</p>
+                    <p class="formula-note">🔒 統計表已鎖定，只能點選左側可愛的 💈 分店圖示輸入金額。🧮 實際營收小計＝💵 紙鈔＋🪙 硬幣；⚖️ 正負差額＝🎟️ 售票機應收金額－💰 實際營收小計－🧾 零用金支出。</p>
                     <div class="table-wrap">
                         <table class="summary-table">
                             <thead><tr>
-                                <th scope="col">分店</th>
-                                <th scope="col">紙鈔</th>
-                                <th scope="col">硬幣</th>
-                                <th scope="col">實際營收小計</th>
-                                <th scope="col">零用金支出</th>
-                                <th scope="col">售票機應收金額</th>
-                                <th scope="col">正負差額</th>
+                                <th scope="col">💈 分店</th>
+                                <th scope="col">💵 紙鈔</th>
+                                <th scope="col">🪙 硬幣</th>
+                                <th scope="col">💰 實際營收小計</th>
+                                <th scope="col">🧾 零用金支出</th>
+                                <th scope="col">🎟️ 售票機應收金額</th>
+                                <th scope="col">⚖️ 正負差額</th>
                             </tr></thead>
                             <tbody>${rows}</tbody>
                             <tfoot><tr class="total-row">
-                                <td>本次合計</td>
+                                <td>✨ 本次合計 ✨</td>
                                 <td>NT$ ${money(totals.bills)}</td>
                                 <td>NT$ ${money(totals.coins)}</td>
                                 <td>NT$ ${money(totals.actual)}</td>
@@ -796,19 +805,19 @@
                 <div class="modal-backdrop" role="presentation" onclick="if(event.target===this) closeModal()">
                     <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="date-dialog-title">
                         <div class="modal-header">
-                            <div><h2 id="date-dialog-title">設定結賬日期</h2><p>${year} 年 ${month} 月 · 第 ${slot} 次結賬</p></div>
+                            <div><h2 id="date-dialog-title">📅 設定結賬日期 🌸</h2><p>✨ ${year} 年 ${month} 月 · 第 ${slot} 次結賬</p></div>
                             <button class="modal-close" type="button" onclick="closeModal()" aria-label="關閉">×</button>
                         </div>
                         <form onsubmit="saveClosingDate(event,${year},${month},${slot})">
                             <div class="modal-body">
                                 <div class="field">
-                                    <label for="closing-date">結賬日期 <span class="field-note">限本月份</span></label>
+                                    <label for="closing-date">🗓️ 結賬日期 <span class="field-note">🌷 限本月份</span></label>
                                     <input id="closing-date" type="date" min="${monthStart}" max="${monthEnd}" value="${existing}" required>
                                 </div>
                             </div>
                             <div class="modal-actions">
-                                <button class="secondary-button" type="button" onclick="closeModal()">取消</button>
-                                <button class="primary-button" type="submit">${existing ? '更新日期' : '儲存並進入'}</button>
+                                <button class="secondary-button" type="button" onclick="closeModal()">🙈 取消</button>
+                                <button class="primary-button" type="submit">${existing ? '✏️ 更新日期' : '💾 儲存並進入 ✨'}</button>
                             </div>
                         </form>
                     </section>
@@ -827,7 +836,7 @@
             touchAndSave();
             closeModal(true);
             renderSummary();
-            showToast('結賬日期已儲存');
+            showToast('🌸 結賬日期已儲存 ✨');
         };
 
         window.openSummary = function(year, month, slot) {
@@ -855,24 +864,24 @@
                 <div class="modal-backdrop" role="presentation" onclick="if(event.target===this) closeModal()">
                     <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="branch-dialog-title">
                         <div class="modal-header">
-                            <div><h2 id="branch-dialog-title">${branch}分店</h2><p>${formatDate(record.date, true)} · 輸入本次結賬金額</p></div>
+                            <div><h2 id="branch-dialog-title">💈 ${branch}分店 🌸</h2><p>📅 ${formatDate(record.date, true)} · 💰 輸入本次結賬金額</p></div>
                             <button class="modal-close" type="button" onclick="closeModal()" aria-label="關閉">×</button>
                         </div>
                         <form id="branch-form" onsubmit="saveBranch(event,'${branch}')">
                             <div class="modal-body">
-                                ${amountInput('amount-ticket', '售票機應收金額', data.ticket, '結帳單金額')}
-                                ${amountInput('amount-bills', '紙鈔', data.bills)}
-                                ${amountInput('amount-coins', '硬幣', data.coins)}
-                                ${amountInput('amount-petty', '零用金支出', data.petty)}
+                                ${amountInput('amount-ticket', '🎟️ 售票機應收金額', data.ticket, '🧾 結帳單金額')}
+                                ${amountInput('amount-bills', '💵 紙鈔', data.bills)}
+                                ${amountInput('amount-coins', '🪙 硬幣', data.coins)}
+                                ${amountInput('amount-petty', '🧾 零用金支出', data.petty)}
                                 <div class="calculation-panel" aria-live="polite">
-                                    <div class="calc-item"><span class="calc-label">實際營收小計</span><strong id="preview-actual" class="calc-value">NT$ 0</strong></div>
-                                    <div class="calc-item"><span class="calc-label">正負差額</span><strong id="preview-diff" class="calc-value">NT$ 0</strong></div>
+                                    <div class="calc-item"><span class="calc-label">💰 實際營收小計</span><strong id="preview-actual" class="calc-value">NT$ 0</strong></div>
+                                    <div class="calc-item"><span class="calc-label">⚖️ 正負差額</span><strong id="preview-diff" class="calc-value">NT$ 0</strong></div>
                                 </div>
-                                <p class="touch-hint">點選欄位後，手機與 iPad 會自動開啟數字鍵盤。</p>
+                                <p class="touch-hint">📱 點選欄位後，手機與 iPad 會自動開啟數字鍵盤。✨</p>
                             </div>
                             <div class="modal-actions">
-                                <button class="secondary-button" type="button" onclick="closeModal()">取消</button>
-                                <button class="primary-button" type="submit">儲存金額</button>
+                                <button class="secondary-button" type="button" onclick="closeModal()">🙈 取消</button>
+                                <button class="primary-button" type="submit">💾 儲存金額 ✨</button>
                             </div>
                         </form>
                     </section>
@@ -916,7 +925,7 @@
             touchAndSave();
             closeModal(true);
             renderSummary();
-            showToast(`${branch}分店金額已儲存`);
+            showToast(`🌸 ${branch}分店金額已儲存 ✨`);
         };
 
         window.closeModal = function(force = false) {
