@@ -858,7 +858,7 @@
             return `
                 <div class="field">
                     <label for="${id}">${label}${note ? `<span class="field-note">${note}</span>` : ''}</label>
-                    <div class="money-input"><input id="${id}" data-money-input type="number" inputmode="decimal" min="0" step="1" value="${safeValue}" placeholder="0" required></div>
+                    <div class="money-input"><input id="${id}" data-money-input type="number" inputmode="decimal" min="0" step="1" value="${safeValue}" placeholder="可留空"></div>
                 </div>`;
         }
 
