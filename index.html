@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#17324d">
+    <meta name="application-name" content="Accounting">
+    <title>Accounting｜結賬紀錄表</title>
+    <style>
+        :root {
+            --navy: #17324d;
+            --navy-2: #244866;
+            --ink: #1c2a36;
+            --muted: #667684;
+            --canvas: #f4f2ed;
+            --surface: #ffffff;
+            --line: #dfe5e8;
+            --soft: #edf2f4;
+            --amber: #d99a2b;
+            --amber-soft: #fff3d7;
+            --teal: #17806d;
+            --teal-soft: #e4f4f0;
+            --red: #c64a4a;
+            --red-soft: #fbeaea;
+            --green: #16825f;
+            --green-soft: #e5f5ef;
+            --shadow: 0 18px 50px rgba(25, 43, 58, .10);
+            --shadow-sm: 0 8px 24px rgba(25, 43, 58, .08);
+            --radius: 22px;
+        }
+
+        * { box-sizing: border-box; }
+        html { min-height: 100%; background: var(--canvas); }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 12% 3%, rgba(217, 154, 43, .11), transparent 25rem),
+                radial-gradient(circle at 93% 8%, rgba(23, 128, 109, .09), transparent 28rem),
+                var(--canvas);
+            font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button, input { font: inherit; }
+        button { color: inherit; }
+        button:focus-visible, input:focus-visible {
+            outline: 3px solid rgba(217, 154, 43, .35);
+            outline-offset: 3px;
+        }
+        .hidden { display: none !important; }
+        .app { min-height: 100dvh; }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            min-height: 74px;
+            padding: 12px max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left));
+            color: #fff;
+            background: rgba(23, 50, 77, .96);
+            border-bottom: 1px solid rgba(255,255,255,.12);
+            backdrop-filter: blur(16px);
+        }
+        .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .brand-mark {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            flex: 0 0 auto;
+            border-radius: 13px;
+            background: var(--amber);
+            color: var(--navy);
+            font-weight: 900;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.35);
+        }
+        .brand-copy { min-width: 0; }
+        .brand-name { font-weight: 900; letter-spacing: .04em; font-size: 16px; }
+        .brand-page { margin-top: 2px; color: #d6e1e8; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .topbar-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+        .connection-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            min-height: 34px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.10);
+            color: #eaf0f4;
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .connection-dot { width: 8px; height: 8px; border-radius: 50%; background: #efb84e; box-shadow: 0 0 0 4px rgba(239,184,78,.12); }
+        .connection-badge.online .connection-dot { background: #5dd2ad; box-shadow: 0 0 0 4px rgba(93,210,173,.12); }
+        .connection-badge.offline .connection-dot { background: #f28a8a; box-shadow: 0 0 0 4px rgba(242,138,138,.12); }
+        .connection-badge.saving .connection-dot { animation: pulse 1s infinite; }
+        @keyframes pulse { 50% { opacity: .35; transform: scale(.78); } }
+
+        .icon-button, .secondary-button, .primary-button, .ghost-button {
+            border: 0;
+            cursor: pointer;
+            min-height: 44px;
+            border-radius: 13px;
+            font-weight: 900;
+            transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+        }
+        .icon-button:hover, .secondary-button:hover, .primary-button:hover, .ghost-button:hover { transform: translateY(-1px); }
+        .icon-button { display: inline-grid; place-items: center; width: 44px; padding: 0; background: rgba(255,255,255,.11); color: #fff; }
+        .ghost-button { padding: 0 16px; background: rgba(255,255,255,.11); color: #fff; }
+        .primary-button { padding: 0 22px; background: var(--amber); color: #172a3b; box-shadow: 0 8px 20px rgba(217,154,43,.24); }
+        .secondary-button { padding: 0 18px; background: var(--soft); color: var(--navy); }
+
+        .page {
+            width: min(1440px, 100%);
+            margin: 0 auto;
+            padding: 34px 26px calc(54px + env(safe-area-inset-bottom));
+        }
+        .page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+        .eyebrow { margin: 0 0 6px; color: var(--teal); font-weight: 900; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; }
+        h1, h2, h3, p { margin-top: 0; }
+        h1 { margin-bottom: 7px; color: var(--navy); font-size: clamp(26px, 4vw, 40px); line-height: 1.2; letter-spacing: -.025em; }
+        .lead { margin-bottom: 0; color: var(--muted); line-height: 1.65; }
+
+        .login-page {
+            min-height: 100dvh;
+            display: grid;
+            grid-template-columns: minmax(320px, .85fr) minmax(560px, 1.15fr);
+        }
+        .login-intro {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100%;
+            padding: clamp(34px, 7vw, 82px);
+            color: #fff;
+            background:
+                linear-gradient(150deg, rgba(23,50,77,.98), rgba(36,72,102,.95)),
+                var(--navy);
+        }
+        .login-brand { display: flex; align-items: center; gap: 14px; }
+        .login-brand .brand-mark { width: 52px; height: 52px; border-radius: 16px; }
+        .login-copy { max-width: 580px; padding: 68px 0; }
+        .login-copy .eyebrow { color: #f2bd59; }
+        .login-copy h1 { max-width: 11em; color: #fff; font-size: clamp(42px, 6vw, 70px); }
+        .login-copy p { max-width: 36em; color: #d5e0e7; font-size: 17px; line-height: 1.8; }
+        .login-note { color: #9fb3c1; font-size: 12px; line-height: 1.6; }
+        .login-select {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: clamp(30px, 6vw, 78px);
+        }
+        .login-select-inner { width: min(670px, 100%); margin: auto; }
+        .login-select h2 { margin-bottom: 8px; color: var(--navy); font-size: clamp(28px, 4vw, 42px); }
+        .profile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 30px; }
+        .profile-card {
+            position: relative;
+            min-height: 260px;
+            overflow: hidden;
+            padding: 28px;
+            text-align: left;
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            background: rgba(255,255,255,.86);
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+        }
+        .profile-card::after { content: ""; position: absolute; width: 160px; height: 160px; right: -72px; bottom: -70px; border-radius: 50%; background: var(--profile-soft); }
+        .profile-card:hover { transform: translateY(-5px); border-color: var(--profile); box-shadow: var(--shadow); }
+        .profile-avatar {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            place-items: center;
+            width: 82px;
+            height: 82px;
+            margin-bottom: 34px;
+            border-radius: 26px;
+            color: #fff;
+            background: var(--profile);
+            font-size: 34px;
+            font-weight: 900;
+            box-shadow: 0 12px 24px color-mix(in srgb, var(--profile) 26%, transparent);
+        }
+        .profile-card h3 { position: relative; z-index: 1; margin-bottom: 6px; color: var(--navy); font-size: 26px; }
+        .profile-meta { position: relative; z-index: 1; color: var(--muted); font-weight: 700; }
+        .profile-enter { position: absolute; z-index: 2; right: 24px; top: 26px; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; color: var(--profile); background: var(--profile-soft); font-size: 20px; }
+        .login-status { margin-top: 24px; display: flex; justify-content: center; }
+        .login-status .connection-badge { background: #fff; color: var(--muted); border: 1px solid var(--line); }
+
+        .year-control { display: flex; align-items: center; gap: 8px; padding: 6px; border: 1px solid var(--line); border-radius: 16px; background: #fff; box-shadow: var(--shadow-sm); }
+        .year-control button { width: 42px; height: 42px; border: 0; border-radius: 11px; background: var(--soft); color: var(--navy); cursor: pointer; font-size: 20px; }
+        .year-value { min-width: 100px; text-align: center; color: var(--navy); font-size: 20px; font-weight: 900; }
+
+        .month-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+        .month-card { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,255,255,.91); box-shadow: var(--shadow-sm); }
+        .month-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px 15px; border-bottom: 1px solid var(--line); }
+        .month-card-header h2 { margin: 0; color: var(--navy); font-size: 21px; }
+        .month-count { padding: 5px 9px; border-radius: 999px; background: var(--soft); color: var(--muted); font-size: 11px; font-weight: 900; }
+        .slot-list { display: grid; gap: 9px; padding: 14px; }
+        .slot-shell { position: relative; }
+        .closing-slot {
+            width: 100%;
+            min-height: 72px;
+            display: grid;
+            grid-template-columns: 40px minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 11px;
+            padding: 10px 12px;
+            text-align: left;
+            border: 1px dashed #cbd5db;
+            border-radius: 15px;
+            background: #fbfcfc;
+            cursor: pointer;
+            transition: background .18s ease, border-color .18s ease, transform .18s ease;
+        }
+        .closing-slot:hover { transform: translateY(-1px); border-color: var(--teal); background: #f4faf8; }
+        .closing-slot.has-date { padding-right: 48px; border-style: solid; border-color: #cde1dc; background: var(--teal-soft); }
+        .slot-number { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; color: var(--navy); background: var(--soft); font-weight: 900; }
+        .has-date .slot-number { color: #fff; background: var(--teal); }
+        .slot-copy { min-width: 0; }
+        .slot-title { display: block; color: var(--navy); font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .slot-subtitle { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; font-weight: 700; }
+        .slot-arrow { color: var(--teal); font-size: 20px; }
+        .date-edit {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: grid;
+            place-items: center;
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: 10px;
+            color: var(--teal);
+            background: rgba(255,255,255,.72);
+            cursor: pointer;
+        }
+
+        .summary-banner {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 18px 20px;
+            border: 1px solid #d4e5e0;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, #f8fbfa, var(--teal-soft));
+        }
+        .back-button { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 15px; border: 1px solid var(--line); border-radius: 13px; background: #fff; color: var(--navy); font-weight: 900; cursor: pointer; }
+        .closing-date { color: var(--navy); font-size: 20px; font-weight: 900; }
+        .closing-context { margin-top: 3px; color: var(--muted); font-size: 12px; font-weight: 700; }
+        .progress-pill { min-width: 120px; padding: 10px 13px; text-align: center; border-radius: 13px; background: #fff; color: var(--teal); font-size: 12px; font-weight: 900; box-shadow: var(--shadow-sm); }
+        .formula-note { margin: 0 0 18px; padding: 12px 16px; border-left: 4px solid var(--amber); border-radius: 0 12px 12px 0; background: var(--amber-soft); color: #6f531d; font-size: 13px; font-weight: 800; line-height: 1.6; }
+
+        .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); }
+        .summary-table { width: 100%; min-width: 950px; border-collapse: separate; border-spacing: 0; }
+        .summary-table th { position: sticky; top: 0; z-index: 2; padding: 15px 12px; color: #fff; background: var(--navy); font-size: 12px; letter-spacing: .02em; text-align: right; white-space: nowrap; }
+        .summary-table th:first-child { left: 0; z-index: 4; min-width: 160px; text-align: left; }
+        .summary-table td { height: 66px; padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; font-weight: 800; white-space: nowrap; }
+        .summary-table tbody tr:last-child td { border-bottom: 0; }
+        .summary-table tbody tr:hover td { background: #f9fbfb; }
+        .summary-table td:first-child { position: sticky; left: 0; z-index: 1; background: #fff; text-align: left; }
+        .branch-cell { display: flex; align-items: center; gap: 10px; }
+        .branch-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 46px;
+            padding: 6px 12px 6px 7px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fff;
+            color: var(--navy);
+            cursor: pointer;
+            font-weight: 900;
+            transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+        }
+        .branch-button:hover { transform: translateY(-1px); border-color: var(--amber); box-shadow: var(--shadow-sm); }
+        .store-icon { position: relative; display: grid; place-items: end center; width: 34px; height: 34px; border-radius: 10px; background: var(--amber-soft); overflow: hidden; }
+        .store-icon::before { content: ""; position: absolute; top: 8px; width: 24px; height: 8px; border-radius: 2px 2px 5px 5px; background: var(--amber); box-shadow: inset 6px 0 #f4cb7c, inset -6px 0 #f4cb7c; }
+        .store-icon::after { content: ""; width: 19px; height: 15px; border: 2px solid var(--navy); border-bottom: 0; background: #fff; }
+        .branch-status { color: var(--teal); font-size: 11px; }
+        .locked-cell { color: #425361; background: #fcfdfd; cursor: not-allowed; user-select: none; }
+        .locked-cell.empty { color: #b5bfc5; font-weight: 600; }
+        .diff-positive { color: var(--green) !important; background: var(--green-soft) !important; }
+        .diff-negative { color: var(--red) !important; background: var(--red-soft) !important; }
+        .total-row td { position: sticky; bottom: 0; z-index: 1; color: var(--navy); background: #eef2f4 !important; border-top: 2px solid #c9d3d9; border-bottom: 0; font-weight: 900; }
+        .total-row td:first-child { z-index: 3; }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 80;
+            display: grid;
+            place-items: center;
+            padding: 18px;
+            background: rgba(14, 30, 43, .58);
+            backdrop-filter: blur(8px);
+        }
+        .modal-card { width: min(560px, 100%); max-height: min(90dvh, 860px); overflow: auto; border-radius: 26px; background: #fff; box-shadow: 0 30px 90px rgba(9,25,37,.32); }
+        .modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 24px 24px 17px; border-bottom: 1px solid var(--line); }
+        .modal-header h2 { margin-bottom: 5px; color: var(--navy); font-size: 24px; }
+        .modal-header p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+        .modal-close { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 auto; border: 0; border-radius: 12px; background: var(--soft); color: var(--navy); cursor: pointer; font-size: 22px; }
+        .modal-body { padding: 22px 24px 8px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 24px 24px; }
+        .field { margin-bottom: 17px; }
+        .field label { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 7px; color: var(--navy); font-size: 13px; font-weight: 900; }
+        .field-note { color: var(--muted); font-size: 11px; font-weight: 700; }
+        .field input { width: 100%; min-height: 52px; padding: 12px 14px; border: 1px solid #cbd6dc; border-radius: 13px; background: #fff; color: var(--ink); font-size: 18px; font-weight: 800; }
+        .field input:focus { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(217,154,43,.12); outline: 0; }
+        input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { appearance: none; margin: 0; }
+        input[type="number"] { appearance: textfield; }
+        .money-input { position: relative; }
+        .money-input::before { content: "NT$"; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 12px; font-weight: 900; pointer-events: none; }
+        .money-input input { padding-left: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+        .calculation-panel { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; padding: 14px; border-radius: 16px; background: var(--soft); }
+        .calc-item { padding: 10px; border-radius: 12px; background: #fff; }
+        .calc-label { display: block; margin-bottom: 4px; color: var(--muted); font-size: 11px; font-weight: 800; }
+        .calc-value { color: var(--navy); font-size: 20px; font-weight: 900; font-variant-numeric: tabular-nums; }
+        .touch-hint { margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; text-align: center; }
+
+        .toast {
+            position: fixed;
+            z-index: 120;
+            left: 50%;
+            bottom: calc(24px + env(safe-area-inset-bottom));
+            transform: translate(-50%, 20px);
+            min-width: min(330px, calc(100vw - 36px));
+            padding: 13px 18px;
+            border-radius: 14px;
+            color: #fff;
+            background: var(--navy);
+            box-shadow: var(--shadow);
+            text-align: center;
+            font-size: 13px;
+            font-weight: 900;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease, transform .2s ease;
+        }
+        .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+        @media (max-width: 1100px) {
+            .month-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .login-page { grid-template-columns: .8fr 1.2fr; }
+        }
+        @media (max-width: 860px) {
+            .login-page { display: block; }
+            .login-intro { min-height: auto; padding: 28px 24px; }
+            .login-copy { padding: 52px 0 30px; }
+            .login-copy h1 { font-size: 45px; }
+            .login-note { display: none; }
+            .login-select { padding: 42px 22px 60px; }
+            .month-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .page-heading { align-items: center; }
+        }
+        @media (max-width: 620px) {
+            .topbar { min-height: 66px; padding: 10px 14px; }
+            .brand-page { display: none; }
+            .connection-badge { max-width: 122px; overflow: hidden; }
+            .ghost-button { width: 44px; padding: 0; font-size: 0; }
+            .ghost-button::after { content: "↩"; font-size: 20px; }
+            .page { padding: 24px 14px 40px; }
+            .page-heading { align-items: flex-start; }
+            .page-heading .lead { max-width: 18em; }
+            .month-grid { grid-template-columns: 1fr; }
+            .profile-grid { gap: 12px; }
+            .profile-card { min-height: 220px; padding: 20px; }
+            .profile-avatar { width: 66px; height: 66px; margin-bottom: 28px; border-radius: 21px; font-size: 28px; }
+            .profile-card h3 { font-size: 23px; }
+            .profile-enter { right: 18px; top: 19px; }
+            .summary-banner { grid-template-columns: 1fr auto; }
+            .back-button { grid-column: 1 / -1; width: fit-content; }
+            .progress-pill { min-width: 92px; }
+            .modal-backdrop { align-items: end; padding: 0; }
+            .modal-card { width: 100%; max-height: 94dvh; border-radius: 24px 24px 0 0; padding-bottom: env(safe-area-inset-bottom); }
+            .modal-header, .modal-body { padding-left: 18px; padding-right: 18px; }
+            .modal-actions { position: sticky; bottom: 0; padding: 14px 18px; background: rgba(255,255,255,.96); border-top: 1px solid var(--line); backdrop-filter: blur(10px); }
+            .modal-actions button { flex: 1; }
+        }
+        @media (max-width: 420px) {
+            .profile-grid { grid-template-columns: 1fr; }
+            .profile-card { min-height: 170px; }
+            .profile-avatar { margin-bottom: 18px; }
+            .login-copy h1 { font-size: 38px; }
+            .year-control { gap: 4px; }
+            .year-value { min-width: 78px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        }
+        @media print {
+            .topbar, .back-button, .formula-note { display: none !important; }
+            body { background: #fff; }
+            .page { width: 100%; padding: 0; }
+            .table-wrap { overflow: visible; border: 0; box-shadow: none; }
+            .summary-table { min-width: 0; }
+        }
+    </style>
+</head>
+<body>
+    <main id="app" class="app"></main>
+    <div id="modal-root"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script type="module">
+        // 所有資料與雲端路徑統一使用 Accounting 命名空間。
+        const APP_NAMESPACE = 'Accounting';
+        const COLLECTION_NAME = 'Accounting';
+        const PROFILE_COLLECTION = 'Accounting_profiles';
+        const STORAGE_PREFIX = 'Accounting';
+        const INITIAL_YEAR = 2026;
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxQFt76ZPXE7d0i1XeNZ1yiiD2WYNIfHs",
+            authDomain: "chinese-learning-47f4d.firebaseapp.com",
+            projectId: "chinese-learning-47f4d",
+            storageBucket: "chinese-learning-47f4d.firebasestorage.app",
+            messagingSenderId: "76289812052",
+            appId: "1:76289812052:web:898384a916f9f341f62fc1"
+        };
+
+        const profiles = {
+            '小雯': {
+                color: '#b46f31', soft: '#f7eadc',
+                branches: ['陽明', '大昌', '建興', '後昌', '左營', '明誠', '華榮', '光遠', '大社', '內惟', '一心', '五甲', '瑞隆', '德惠']
+            },
+            '彩屏': {
+                color: '#277b73', soft: '#e3f1ef',
+                branches: ['自由', '福山', '大寮', '復興', '鼎中', '十全', '草屯', '華夏', '武廟', '小港']
+            }
+        };
+
+        let username = '';
+        let userData = emptyUserData('');
+        let currentView = 'login';
+        let currentYear = INITIAL_YEAR;
+        let currentSelection = null;
+        let connectionStatus = 'loading';
+        let cloud = null;
+        let unsubscribeProfile = null;
+        let branchDirty = false;
+        let toastTimer = null;
+
+        const $ = (selector, root = document) => root.querySelector(selector);
+        const app = $('#app');
+        const modalRoot = $('#modal-root');
+
+        function emptyUserData(name) {
+            return { collectionName: COLLECTION_NAME, profile: name, records: {}, updatedAt: '' };
+        }
+
+        function normalizeUserData(raw, name) {
+            const safe = raw && typeof raw === 'object' ? raw : {};
+            return {
+                collectionName: COLLECTION_NAME,
+                profile: name,
+                records: safe.records && typeof safe.records === 'object' ? safe.records : {},
+                updatedAt: typeof safe.updatedAt === 'string' ? safe.updatedAt : ''
+            };
+        }
+
+        function storageKey(name) { return `${STORAGE_PREFIX}:profile:${name}`; }
+
+        function loadLocalData(name) {
+            try {
+                const raw = localStorage.getItem(storageKey(name));
+                userData = normalizeUserData(raw ? JSON.parse(raw) : null, name);
+            } catch (_) {
+                userData = emptyUserData(name);
+            }
+        }
+
+        function saveLocalData() {
+            if (!username) return;
+            try { localStorage.setItem(storageKey(username), JSON.stringify(userData)); } catch (_) {}
+        }
+
+        function getRecord(year, month, slot, create = false) {
+            const y = String(year), m = String(month), s = String(slot);
+            if (!userData.records[y]) {
+                if (!create) return null;
+                userData.records[y] = {};
+            }
+            if (!userData.records[y][m]) {
+                if (!create) return null;
+                userData.records[y][m] = {};
+            }
+            if (!userData.records[y][m][s]) {
+                if (!create) return null;
+                userData.records[y][m][s] = { date: '', branches: {}, updatedAt: '' };
+            }
+            const record = userData.records[y][m][s];
+            if (!record.branches || typeof record.branches !== 'object') record.branches = {};
+            return record;
+        }
+
+        function amount(value) {
+            const parsed = Number(value);
+            return Number.isFinite(parsed) ? parsed : 0;
+        }
+
+        function branchCalculation(data) {
+            const actual = amount(data?.bills) + amount(data?.coins);
+            const diff = amount(data?.ticket) - actual - amount(data?.petty);
+            return { actual, diff };
+        }
+
+        function money(value) {
+            return new Intl.NumberFormat('zh-TW', { maximumFractionDigits: 0 }).format(amount(value));
+        }
+
+        function moneyCell(value, saved) { return saved ? `NT$ ${money(value)}` : '—'; }
+
+        function formatDate(dateString, full = false) {
+            if (!dateString) return '';
+            const date = new Date(`${dateString}T12:00:00`);
+            return new Intl.DateTimeFormat('zh-TW', full
+                ? { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }
+                : { month: 'numeric', day: 'numeric', weekday: 'short' }
+            ).format(date);
+        }
+
+        function isoNow() { return new Date().toISOString(); }
+        function lastDayOfMonth(year, month) { return new Date(year, month, 0).getDate(); }
+        function pad(number) { return String(number).padStart(2, '0'); }
+
+        function connectionMeta() {
+            if (connectionStatus === 'online') return { text: '雲端已同步', className: 'online' };
+            if (connectionStatus === 'saving') return { text: '正在儲存', className: 'saving' };
+            if (connectionStatus === 'offline') return { text: '離線儲存', className: 'offline' };
+            return { text: '連線中', className: 'saving' };
+        }
+
+        function connectionBadge() {
+            const state = connectionMeta();
+            return `<span class="connection-badge ${state.className}"><span class="connection-dot"></span><span class="connection-text">${state.text}</span></span>`;
+        }
+
+        function updateConnectionBadges() {
+            const state = connectionMeta();
+            document.querySelectorAll('.connection-badge').forEach((badge) => {
+                badge.className = `connection-badge ${state.className}`;
+                const text = $('.connection-text', badge);
+                if (text) text.textContent = state.text;
+            });
+        }
+
+        function topbar(pageName) {
+            return `
+                <header class="topbar">
+                    <div class="brand">
+                        <div class="brand-mark" aria-hidden="true">A</div>
+                        <div class="brand-copy">
+                            <div class="brand-name">Accounting</div>
+                            <div class="brand-page">${pageName} · ${username}</div>
+                        </div>
+                    </div>
+                    <div class="topbar-actions">
+                        ${connectionBadge()}
+                        <button class="ghost-button" type="button" onclick="logout()">切換使用者</button>
+                    </div>
+                </header>`;
+        }
+
+        function showToast(message) {
+            const toast = $('#toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+        }
+
+        function renderLogin() {
+            currentView = 'login';
+            app.innerHTML = `
+                <section class="login-page">
+                    <div class="login-intro">
+                        <div class="login-brand">
+                            <div class="brand-mark" aria-hidden="true">A</div>
+                            <div><strong>Accounting</strong><br><span style="color:#b5c6d1;font-size:12px">Weekly closing records</span></div>
+                        </div>
+                        <div class="login-copy">
+                            <p class="eyebrow">結賬紀錄表</p>
+                            <h1>每週結賬，清楚又準確。</h1>
+                            <p>選擇你的帳號，依日期進入當週統計表。日期、分店金額與差額會分開保存。</p>
+                        </div>
+                        <div class="login-note">資料優先儲存於本機；連上網路後會同步至 Accounting 雲端資料區。</div>
+                    </div>
+                    <div class="login-select">
+                        <div class="login-select-inner">
+                            <p class="eyebrow">快速登入</p>
+                            <h2>今天由誰結賬？</h2>
+                            <p class="lead">點選專屬圖示，進入各自的日期表與分店清單。</p>
+                            <div class="profile-grid">
+                                ${Object.entries(profiles).map(([name, profile]) => `
+                                    <button class="profile-card" style="--profile:${profile.color};--profile-soft:${profile.soft}" type="button" onclick="login('${name}')" aria-label="以${name}身分登入">
+                                        <span class="profile-enter" aria-hidden="true">→</span>
+                                        <span class="profile-avatar" aria-hidden="true">${name.slice(-1)}</span>
+                                        <h3>${name}</h3>
+                                        <span class="profile-meta">${profile.branches.length} 間分店</span>
+                                    </button>`).join('')}
+                            </div>
+                            <div class="login-status">${connectionBadge()}</div>
+                        </div>
+                    </div>
+                </section>`;
+        }
+
+        function renderCalendar() {
+            currentView = 'calendar';
+            const monthCards = Array.from({ length: 12 }, (_, index) => {
+                const month = index + 1;
+                const slots = Array.from({ length: 5 }, (_, slotIndex) => {
+                    const slot = slotIndex + 1;
+                    const record = getRecord(currentYear, month, slot);
+                    const branchCount = record ? Object.values(record.branches || {}).filter((item) => item?.saved).length : 0;
+                    if (record?.date) {
+                        return `
+                            <div class="slot-shell">
+                                <button class="closing-slot has-date" type="button" onclick="openSummary(${currentYear},${month},${slot})">
+                                    <span class="slot-number">${slot}</span>
+                                    <span class="slot-copy">
+                                        <span class="slot-title">${formatDate(record.date)}</span>
+                                        <span class="slot-subtitle">已完成 ${branchCount}/${profiles[username].branches.length} 間分店</span>
+                                    </span>
+                                </button>
+                                <button class="date-edit" type="button" title="修改日期" aria-label="修改第 ${slot} 次結賬日期" onclick="event.stopPropagation();openDateDialog(${currentYear},${month},${slot})">✎</button>
+                            </div>`;
+                    }
+                    return `
+                        <button class="closing-slot" type="button" onclick="openDateDialog(${currentYear},${month},${slot})">
+                            <span class="slot-number">${slot}</span>
+                            <span class="slot-copy">
+                                <span class="slot-title">設定結賬日期</span>
+                                <span class="slot-subtitle">第 ${slot} 次結賬</span>
+                            </span>
+                            <span class="slot-arrow" aria-hidden="true">＋</span>
+                        </button>`;
+                }).join('');
+                const setCount = Array.from({ length: 5 }, (_, i) => getRecord(currentYear, month, i + 1)?.date).filter(Boolean).length;
+                return `
+                    <section class="month-card">
+                        <div class="month-card-header"><h2>${month} 月</h2><span class="month-count">${setCount}/5 已設定</span></div>
+                        <div class="slot-list">${slots}</div>
+                    </section>`;
+            }).join('');
+
+            app.innerHTML = `
+                ${topbar('日期表')}
+                <div class="page">
+                    <div class="page-heading">
+                        <div>
+                            <p class="eyebrow">${username}的結賬紀錄</p>
+                            <h1>選擇結賬日期</h1>
+                            <p class="lead">每月最多 5 次。空白格先設定日期，已有日期的格子可直接進入統計表。</p>
+                        </div>
+                        <div class="year-control" aria-label="年份選擇">
+                            <button type="button" onclick="changeYear(-1)" aria-label="上一年">‹</button>
+                            <span class="year-value">${currentYear}</span>
+                            <button type="button" onclick="changeYear(1)" aria-label="下一年">›</button>
+                        </div>
+                    </div>
+                    <div class="month-grid">${monthCards}</div>
+                </div>`;
+        }
+
+        function renderSummary() {
+            currentView = 'summary';
+            const { year, month, slot } = currentSelection;
+            const record = getRecord(year, month, slot);
+            if (!record?.date) { renderCalendar(); return; }
+            const branches = profiles[username].branches;
+            const savedCount = branches.filter((branch) => record.branches?.[branch]?.saved).length;
+            const totals = { bills: 0, coins: 0, actual: 0, petty: 0, ticket: 0, diff: 0 };
+
+            const rows = branches.map((branch) => {
+                const data = record.branches?.[branch] || {};
+                const saved = Boolean(data.saved);
+                const calc = branchCalculation(data);
+                if (saved) {
+                    totals.bills += amount(data.bills);
+                    totals.coins += amount(data.coins);
+                    totals.actual += calc.actual;
+                    totals.petty += amount(data.petty);
+                    totals.ticket += amount(data.ticket);
+                    totals.diff += calc.diff;
+                }
+                const diffClass = !saved ? 'empty' : calc.diff > 0 ? 'diff-positive' : calc.diff < 0 ? 'diff-negative' : '';
+                return `
+                    <tr>
+                        <td>
+                            <div class="branch-cell">
+                                <button class="branch-button" type="button" onclick="openBranchEditor('${branch}')" aria-label="輸入${branch}分店金額">
+                                    <span class="store-icon" aria-hidden="true"></span>
+                                    <span>${branch}</span>
+                                    <span class="branch-status">${saved ? '已填' : '待填'}</span>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.bills, saved)}</td>
+                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.coins, saved)}</td>
+                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(calc.actual, saved)}</td>
+                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.petty, saved)}</td>
+                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.ticket, saved)}</td>
+                        <td class="locked-cell ${diffClass}" aria-disabled="true">${moneyCell(calc.diff, saved)}</td>
+                    </tr>`;
+            }).join('');
+
+            const totalDiffClass = totals.diff > 0 ? 'diff-positive' : totals.diff < 0 ? 'diff-negative' : '';
+            app.innerHTML = `
+                ${topbar('當週統計總表')}
+                <div class="page">
+                    <div class="summary-banner">
+                        <button class="back-button" type="button" onclick="renderCalendar()">← 返回日期表</button>
+                        <div>
+                            <div class="closing-date">${formatDate(record.date, true)}</div>
+                            <div class="closing-context">${year} 年 ${month} 月 · 第 ${slot} 次結賬 · ${username}</div>
+                        </div>
+                        <div class="progress-pill">已填 ${savedCount}/${branches.length}</div>
+                    </div>
+                    <p class="formula-note">統計表已鎖定，只能點選左側分店圖示輸入金額。實際營收小計＝紙鈔＋硬幣；正負差額＝售票機應收金額－實際營收小計－零用金支出。</p>
+                    <div class="table-wrap">
+                        <table class="summary-table">
+                            <thead><tr>
+                                <th scope="col">分店</th>
+                                <th scope="col">紙鈔</th>
+                                <th scope="col">硬幣</th>
+                                <th scope="col">實際營收小計</th>
+                                <th scope="col">零用金支出</th>
+                                <th scope="col">售票機應收金額</th>
+                                <th scope="col">正負差額</th>
+                            </tr></thead>
+                            <tbody>${rows}</tbody>
+                            <tfoot><tr class="total-row">
+                                <td>本次合計</td>
+                                <td>NT$ ${money(totals.bills)}</td>
+                                <td>NT$ ${money(totals.coins)}</td>
+                                <td>NT$ ${money(totals.actual)}</td>
+                                <td>NT$ ${money(totals.petty)}</td>
+                                <td>NT$ ${money(totals.ticket)}</td>
+                                <td class="${totalDiffClass}">NT$ ${money(totals.diff)}</td>
+                            </tr></tfoot>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        window.login = function(name) {
+            if (!profiles[name]) return;
+            username = name;
+            currentYear = INITIAL_YEAR;
+            currentSelection = null;
+            loadLocalData(name);
+            renderCalendar();
+            attachProfileListener();
+        };
+
+        window.logout = function() {
+            if (unsubscribeProfile) unsubscribeProfile();
+            unsubscribeProfile = null;
+            username = '';
+            userData = emptyUserData('');
+            currentSelection = null;
+            closeModal(true);
+            renderLogin();
+        };
+
+        window.changeYear = function(delta) {
+            currentYear = Math.min(2100, Math.max(2000, currentYear + delta));
+            renderCalendar();
+        };
+
+        window.renderCalendar = renderCalendar;
+
+        window.openDateDialog = function(year, month, slot) {
+            const record = getRecord(year, month, slot);
+            const existing = record?.date || '';
+            const monthStart = `${year}-${pad(month)}-01`;
+            const monthEnd = `${year}-${pad(month)}-${pad(lastDayOfMonth(year, month))}`;
+            modalRoot.innerHTML = `
+                <div class="modal-backdrop" role="presentation" onclick="if(event.target===this) closeModal()">
+                    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="date-dialog-title">
+                        <div class="modal-header">
+                            <div><h2 id="date-dialog-title">設定結賬日期</h2><p>${year} 年 ${month} 月 · 第 ${slot} 次結賬</p></div>
+                            <button class="modal-close" type="button" onclick="closeModal()" aria-label="關閉">×</button>
+                        </div>
+                        <form onsubmit="saveClosingDate(event,${year},${month},${slot})">
+                            <div class="modal-body">
+                                <div class="field">
+                                    <label for="closing-date">結賬日期 <span class="field-note">限本月份</span></label>
+                                    <input id="closing-date" type="date" min="${monthStart}" max="${monthEnd}" value="${existing}" required>
+                                </div>
+                            </div>
+                            <div class="modal-actions">
+                                <button class="secondary-button" type="button" onclick="closeModal()">取消</button>
+                                <button class="primary-button" type="submit">${existing ? '更新日期' : '儲存並進入'}</button>
+                            </div>
+                        </form>
+                    </section>
+                </div>`;
+            setTimeout(() => $('#closing-date')?.focus(), 50);
+        };
+
+        window.saveClosingDate = function(event, year, month, slot) {
+            event.preventDefault();
+            const date = $('#closing-date')?.value;
+            if (!date) return;
+            const record = getRecord(year, month, slot, true);
+            record.date = date;
+            record.updatedAt = isoNow();
+            currentSelection = { year, month, slot };
+            touchAndSave();
+            closeModal(true);
+            renderSummary();
+            showToast('結賬日期已儲存');
+        };
+
+        window.openSummary = function(year, month, slot) {
+            const record = getRecord(year, month, slot);
+            if (!record?.date) { window.openDateDialog(year, month, slot); return; }
+            currentSelection = { year, month, slot };
+            renderSummary();
+        };
+
+        function amountInput(id, label, value, note = '') {
+            const safeValue = value === '' || value === undefined || value === null ? '' : amount(value);
+            return `
+                <div class="field">
+                    <label for="${id}">${label}${note ? `<span class="field-note">${note}</span>` : ''}</label>
+                    <div class="money-input"><input id="${id}" data-money-input type="number" inputmode="decimal" min="0" step="1" value="${safeValue}" placeholder="0" required></div>
+                </div>`;
+        }
+
+        window.openBranchEditor = function(branch) {
+            if (!currentSelection) return;
+            const record = getRecord(currentSelection.year, currentSelection.month, currentSelection.slot, true);
+            const data = record.branches?.[branch] || { ticket: '', bills: '', coins: '', petty: '' };
+            branchDirty = false;
+            modalRoot.innerHTML = `
+                <div class="modal-backdrop" role="presentation" onclick="if(event.target===this) closeModal()">
+                    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="branch-dialog-title">
+                        <div class="modal-header">
+                            <div><h2 id="branch-dialog-title">${branch}分店</h2><p>${formatDate(record.date, true)} · 輸入本次結賬金額</p></div>
+                            <button class="modal-close" type="button" onclick="closeModal()" aria-label="關閉">×</button>
+                        </div>
+                        <form id="branch-form" onsubmit="saveBranch(event,'${branch}')">
+                            <div class="modal-body">
+                                ${amountInput('amount-ticket', '售票機應收金額', data.ticket, '結帳單金額')}
+                                ${amountInput('amount-bills', '紙鈔', data.bills)}
+                                ${amountInput('amount-coins', '硬幣', data.coins)}
+                                ${amountInput('amount-petty', '零用金支出', data.petty)}
+                                <div class="calculation-panel" aria-live="polite">
+                                    <div class="calc-item"><span class="calc-label">實際營收小計</span><strong id="preview-actual" class="calc-value">NT$ 0</strong></div>
+                                    <div class="calc-item"><span class="calc-label">正負差額</span><strong id="preview-diff" class="calc-value">NT$ 0</strong></div>
+                                </div>
+                                <p class="touch-hint">點選欄位後，手機與 iPad 會自動開啟數字鍵盤。</p>
+                            </div>
+                            <div class="modal-actions">
+                                <button class="secondary-button" type="button" onclick="closeModal()">取消</button>
+                                <button class="primary-button" type="submit">儲存金額</button>
+                            </div>
+                        </form>
+                    </section>
+                </div>`;
+            document.querySelectorAll('[data-money-input]').forEach((input) => {
+                input.addEventListener('input', () => { branchDirty = true; updateBranchPreview(); });
+                input.addEventListener('focus', () => input.select());
+            });
+            updateBranchPreview();
+            setTimeout(() => $('#amount-ticket')?.focus(), 50);
+        };
+
+        function formAmount(id) { return amount($(id)?.value); }
+
+        function updateBranchPreview() {
+            const actual = formAmount('#amount-bills') + formAmount('#amount-coins');
+            const diff = formAmount('#amount-ticket') - actual - formAmount('#amount-petty');
+            const actualEl = $('#preview-actual');
+            const diffEl = $('#preview-diff');
+            if (actualEl) actualEl.textContent = `NT$ ${money(actual)}`;
+            if (diffEl) {
+                diffEl.textContent = `NT$ ${money(diff)}`;
+                diffEl.style.color = diff > 0 ? 'var(--green)' : diff < 0 ? 'var(--red)' : 'var(--navy)';
+            }
+        }
+
+        window.saveBranch = function(event, branch) {
+            event.preventDefault();
+            if (!currentSelection) return;
+            const record = getRecord(currentSelection.year, currentSelection.month, currentSelection.slot, true);
+            record.branches[branch] = {
+                ticket: formAmount('#amount-ticket'),
+                bills: formAmount('#amount-bills'),
+                coins: formAmount('#amount-coins'),
+                petty: formAmount('#amount-petty'),
+                saved: true,
+                updatedAt: isoNow()
+            };
+            record.updatedAt = isoNow();
+            branchDirty = false;
+            touchAndSave();
+            closeModal(true);
+            renderSummary();
+            showToast(`${branch}分店金額已儲存`);
+        };
+
+        window.closeModal = function(force = false) {
+            if (!force && branchDirty && modalRoot.innerHTML && !confirm('尚未儲存輸入內容，確定要離開嗎？')) return;
+            branchDirty = false;
+            modalRoot.innerHTML = '';
+        };
+
+        function touchAndSave() {
+            userData.collectionName = COLLECTION_NAME;
+            userData.profile = username;
+            userData.updatedAt = isoNow();
+            saveLocalData();
+            saveCloudData();
+        }
+
+        async function saveCloudData() {
+            if (!cloud || !username) return;
+            connectionStatus = 'saving';
+            updateConnectionBadges();
+            try {
+                await cloud.setDoc(cloud.profileRef(), structuredClone(userData));
+                connectionStatus = 'online';
+            } catch (error) {
+                console.warn('Accounting cloud save failed', error);
+                connectionStatus = 'offline';
+            }
+            updateConnectionBadges();
+        }
+
+        async function attachProfileListener() {
+            if (unsubscribeProfile) unsubscribeProfile();
+            unsubscribeProfile = null;
+            if (!cloud || !username) return;
+            const profileName = username;
+            let firstSnapshot = true;
+            unsubscribeProfile = cloud.onSnapshot(cloud.profileRef(), async (snapshot) => {
+                if (username !== profileName) return;
+                if (!snapshot.exists()) {
+                    if (firstSnapshot) await saveCloudData();
+                    firstSnapshot = false;
+                    return;
+                }
+                const remote = normalizeUserData(snapshot.data(), profileName);
+                if (firstSnapshot && Date.parse(userData.updatedAt || 0) > Date.parse(remote.updatedAt || 0)) {
+                    firstSnapshot = false;
+                    await saveCloudData();
+                    return;
+                }
+                firstSnapshot = false;
+                userData = remote;
+                saveLocalData();
+                if (!modalRoot.innerHTML) {
+                    if (currentView === 'calendar') renderCalendar();
+                    if (currentView === 'summary') renderSummary();
+                }
+            }, (error) => {
+                console.warn('Accounting cloud listener failed', error);
+                connectionStatus = 'offline';
+                updateConnectionBadges();
+            });
+        }
+
+        async function initCloud() {
+            try {
+                const [{ initializeApp }, authApi, firestoreApi] = await Promise.all([
+                    import('https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js'),
+                    import('https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js'),
+                    import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js')
+                ]);
+                const actualConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
+                const firebaseApp = initializeApp(actualConfig, APP_NAMESPACE);
+                const auth = authApi.getAuth(firebaseApp);
+                const db = firestoreApi.getFirestore(firebaseApp);
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await authApi.signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await authApi.signInAnonymously(auth);
+                }
+                cloud = {
+                    setDoc: firestoreApi.setDoc,
+                    onSnapshot: firestoreApi.onSnapshot,
+                    profileRef: () => firestoreApi.doc(db, 'artifacts', APP_NAMESPACE, 'public', 'data', PROFILE_COLLECTION, username)
+                };
+                connectionStatus = 'online';
+                updateConnectionBadges();
+                if (username) attachProfileListener();
+            } catch (error) {
+                console.warn('Accounting is using local storage', error);
+                connectionStatus = 'offline';
+                updateConnectionBadges();
+            }
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && modalRoot.innerHTML) window.closeModal();
+        });
+
+        renderLogin();
+        initCloud();
+    </script>
+</body>
+</html>
