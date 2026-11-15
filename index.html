@@ -276,7 +276,7 @@
 
         .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); }
         .summary-table { width: 100%; min-width: 0; table-layout: fixed; border-collapse: separate; border-spacing: 0; }
-        .summary-table th { position: sticky; top: 0; z-index: 2; width: 10.875%; padding: 16px 7px; color: #fff; background: linear-gradient(135deg, #a75b7c, #c87499); font-size: 16px; letter-spacing: 0; line-height: 1.4; text-align: center; white-space: normal; }
+        .summary-table th { position: sticky; top: 0; z-index: 2; width: 9.666%; padding: 16px 7px; color: #fff; background: linear-gradient(135deg, #a75b7c, #c87499); font-size: 16px; letter-spacing: 0; line-height: 1.4; text-align: center; white-space: normal; }
         .summary-table th:first-child { left: 0; z-index: 4; width: 13%; text-align: left; }
         .summary-table td { height: 70px; padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: right; font-size: 16px; font-variant-numeric: tabular-nums; font-weight: 800; white-space: nowrap; }
         .summary-table tbody tr:last-child td { border-bottom: 0; }
@@ -410,7 +410,7 @@
         @media (max-width: 1100px) {
             .month-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
             .login-page { grid-template-columns: .8fr 1.2fr; }
-            .summary-table { min-width: 1100px; }
+            .summary-table { min-width: 1240px; }
         }
         @media (max-width: 860px) {
             .login-page { display: block; }
@@ -617,7 +617,7 @@
         }
 
         function branchCalculation(data) {
-            const cashTotal = amount(data?.bills) + amount(data?.coins);
+            const cashTotal = amount(data?.bills) + amount(data?.coins) + amount(data?.coinTransfer);
             const petty = pettyTotal(data);
             const actualIncome = cashTotal + petty;
             const diff = actualIncome - amount(data?.ticket);
@@ -794,7 +794,7 @@
             if (!record?.date) { renderCalendar(); return; }
             const branches = profiles[username].branches;
             const savedCount = branches.filter((branch) => record.branches?.[branch]?.saved).length;
-            const totals = { ticket: 0, bills: 0, coins: 0, cashTotal: 0, petty: 0, actualIncome: 0, diff: 0, cannotCheckout: 0 };
+            const totals = { ticket: 0, bills: 0, coins: 0, coinTransfer: 0, cashTotal: 0, petty: 0, actualIncome: 0, diff: 0, cannotCheckout: 0 };
 
             const rows = branches.map((branch) => {
                 const data = record.branches?.[branch] || {};
@@ -803,6 +803,7 @@
                 if (saved) {
                     totals.bills += amount(data.bills);
                     totals.coins += amount(data.coins);
+                    totals.coinTransfer += amount(data.coinTransfer);
                     totals.ticket += amount(data.ticket);
                     totals.cashTotal += calc.cashTotal;
                     totals.petty += calc.pettyTotal;
@@ -825,6 +826,7 @@
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.ticket, saved)}</td>
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.bills, saved)}</td>
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.coins, saved)}</td>
+                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.coinTransfer, saved)}</td>
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(calc.cashTotal, saved)}</td>
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true"${saved && pettyItemSummary(data) ? ` title="支出項目：${escapeAttribute(pettyItemSummary(data))}"` : ''}>${moneyCell(calc.pettyTotal, saved)}</td>
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(calc.actualIncome, saved)}</td>
@@ -850,11 +852,12 @@
                         <table class="summary-table">
                             <thead><tr>
                                 <th scope="col">分店</th>
-                                <th scope="col">🎟️ 售票機結帳金額</th>
+                                <th scope="col">🎟️ 售票機結帳</th>
                                 <th scope="col">💵 紙鈔收入</th>
                                 <th scope="col">🪙 硬幣收入</th>
+                                <th scope="col">🔄 各店零錢劃撥</th>
                                 <th scope="col">🧮 現金合計</th>
-                                <th scope="col">🧾 零用金支出合計</th>
+                                <th scope="col">🧾 零用金支出</th>
                                 <th scope="col">💰 實際收入</th>
                                 <th scope="col">⚖️ 正負差額</th>
                                 <th scope="col">⚠️ 結帳狀態</th>
@@ -865,6 +868,7 @@
                                 <td>NT$ ${money(totals.ticket)}</td>
                                 <td>NT$ ${money(totals.bills)}</td>
                                 <td>NT$ ${money(totals.coins)}</td>
+                                <td>NT$ ${money(totals.coinTransfer)}</td>
                                 <td>NT$ ${money(totals.cashTotal)}</td>
                                 <td>NT$ ${money(totals.petty)}</td>
                                 <td>NT$ ${money(totals.actualIncome)}</td>
@@ -1203,7 +1207,7 @@
             return `
                 <div class="field">
                     <div class="field-title-row">
-                        <label for="amount-ticket">售票機結帳金額</label>
+                        <label for="amount-ticket">售票機結帳</label>
                         <label class="checkout-toggle" for="cannot-checkout">
                             <input id="cannot-checkout" data-branch-input type="checkbox" ${cannotCheckout ? 'checked' : ''}>
                             <span>無法結帳</span>
@@ -1234,7 +1238,7 @@
         window.openBranchEditor = function(branch) {
             if (!currentSelection) return;
             const record = getRecord(currentSelection.year, currentSelection.month, currentSelection.slot, true);
-            const data = record.branches?.[branch] || { ticket: '', bills: '', coins: '', petty: '' };
+            const data = record.branches?.[branch] || { ticket: '', bills: '', coins: '', coinTransfer: '', petty: '' };
             const pettyValues = pettyInputValues(data);
             branchDirty = false;
             modalRoot.innerHTML = `
@@ -1249,6 +1253,7 @@
                                 ${ticketAmountInput(data.ticket, Boolean(data.cannotCheckout))}
                                 ${amountInput('amount-bills', '紙鈔收入', data.bills)}
                                 ${amountInput('amount-coins', '硬幣收入', data.coins)}
+                                ${amountInput('amount-coin-transfer', '各店零錢劃撥', data.coinTransfer)}
                                 <div class="calculation-panel single-calculation" aria-live="polite">
                                     <div class="calc-item"><span class="calc-label">現金合計</span><strong id="preview-cash-total" class="calc-value">NT$ 0</strong></div>
                                 </div>
@@ -1258,7 +1263,7 @@
                                     ${expenseInput(3, data.pettyItem3, pettyValues[2])}
                                 </div>
                                 <div class="calculation-panel three-column" aria-live="polite">
-                                    <div class="calc-item"><span class="calc-label">零用金支出合計</span><strong id="preview-petty-total" class="calc-value">NT$ 0</strong></div>
+                                    <div class="calc-item"><span class="calc-label">零用金支出</span><strong id="preview-petty-total" class="calc-value">NT$ 0</strong></div>
                                     <div class="calc-item"><span class="calc-label">實際收入</span><strong id="preview-actual-income" class="calc-value">NT$ 0</strong></div>
                                     <div id="preview-diff-card" class="calc-item"><span class="calc-label">正負差額</span><strong id="preview-diff" class="calc-value">NT$ 0</strong></div>
                                 </div>
@@ -1297,7 +1302,7 @@
         }
 
         function updateBranchPreview() {
-            const cashTotal = formAmount('#amount-bills') + formAmount('#amount-coins');
+            const cashTotal = formAmount('#amount-bills') + formAmount('#amount-coins') + formAmount('#amount-coin-transfer');
             const petty = formPettyTotal();
             const actualIncome = cashTotal + petty;
             const diff = actualIncome - formAmount('#amount-ticket');
@@ -1330,6 +1335,7 @@
                 ticket: formAmount('#amount-ticket'),
                 bills: formAmount('#amount-bills'),
                 coins: formAmount('#amount-coins'),
+                coinTransfer: formAmount('#amount-coin-transfer'),
                 petty: petty1 + petty2 + petty3,
                 petty1,
                 petty2,
