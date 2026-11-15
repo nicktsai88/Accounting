@@ -273,15 +273,9 @@
         .formula-note { margin: 0 0 18px; padding: 13px 17px; border-left: 4px solid var(--amber); border-radius: 0 12px 12px 0; background: var(--amber-soft); color: #7c3659; font-size: 15px; font-weight: 800; line-height: 1.7; }
 
         .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); }
-        .summary-table { width: 100%; min-width: 1450px; border-collapse: separate; border-spacing: 0; }
-        .summary-table th { position: sticky; top: 0; z-index: 2; padding: 18px 14px; color: #fff; background: linear-gradient(135deg, #a75b7c, #c87499); font-size: 18px; letter-spacing: .01em; line-height: 1.45; text-align: right; white-space: nowrap; }
-        .summary-table th:first-child { left: 0; z-index: 4; min-width: 180px; text-align: left; }
-        .summary-table th:nth-child(2) { min-width: 220px; }
-        .summary-table th:nth-child(3), .summary-table th:nth-child(4) { min-width: 150px; }
-        .summary-table th:nth-child(5) { min-width: 170px; }
-        .summary-table th:nth-child(6) { min-width: 200px; }
-        .summary-table th:nth-child(7) { min-width: 170px; }
-        .summary-table th:nth-child(8) { min-width: 165px; }
+        .summary-table { width: 100%; min-width: 0; table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+        .summary-table th { position: sticky; top: 0; z-index: 2; width: 12.28%; padding: 16px 8px; color: #fff; background: linear-gradient(135deg, #a75b7c, #c87499); font-size: 16px; letter-spacing: 0; line-height: 1.4; text-align: center; white-space: normal; }
+        .summary-table th:first-child { left: 0; z-index: 4; width: 14%; text-align: left; }
         .summary-table td { height: 70px; padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: right; font-size: 16px; font-variant-numeric: tabular-nums; font-weight: 800; white-space: nowrap; }
         .summary-table tbody tr:last-child td { border-bottom: 0; }
         .summary-table tbody tr:hover td { background: #fff5f8; }
@@ -381,6 +375,7 @@
         @media (max-width: 1100px) {
             .month-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
             .login-page { grid-template-columns: .8fr 1.2fr; }
+            .summary-table { min-width: 1100px; }
         }
         @media (max-width: 860px) {
             .login-page { display: block; }
@@ -975,7 +970,17 @@
             document.querySelectorAll('[data-branch-input]').forEach((input) => {
                 input.addEventListener('input', () => { branchDirty = true; updateBranchPreview(); });
             });
-            document.querySelectorAll('[data-money-input]').forEach((input) => input.addEventListener('focus', () => input.select()));
+            document.querySelectorAll('[data-money-input]').forEach((input) => {
+                input.addEventListener('focus', () => input.select());
+                input.addEventListener('wheel', (event) => {
+                    if (event.ctrlKey) return;
+                    const scroller = input.closest('.modal-card');
+                    const multiplier = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? (scroller?.clientHeight || 1) : 1;
+                    if (document.activeElement === input) input.blur();
+                    if (scroller) scroller.scrollTop += event.deltaY * multiplier;
+                    event.preventDefault();
+                }, { passive: false });
+            });
             updateBranchPreview();
             setTimeout(() => $('#amount-ticket')?.focus(), 50);
         };
