@@ -1,0 +1,29 @@
+// 請合併到現有 firestore.rules，不要直接覆蓋共用 Firebase 專案的其他規則。
+// 這段規則只保護 Accounting 使用的資料路徑。
+
+function accountingSignedIn() {
+  return request.auth != null;
+}
+
+function accountingAdmin() {
+  return accountingSignedIn() && request.auth.token.admin == true;
+}
+
+function accountingProfile(profileName) {
+  return accountingSignedIn() && request.auth.token.profile == profileName;
+}
+
+match /artifacts/Accounting/public/data/Accounting_profiles/{profileName} {
+  allow read, write: if accountingAdmin() || accountingProfile(profileName);
+}
+
+match /Accounting_users/{username} {
+  allow read: if accountingAdmin() || accountingProfile(username);
+  allow write: if false;
+}
+
+match /Accounting_audit/{entryId} {
+  allow read: if accountingAdmin();
+  allow write: if false;
+}
+
