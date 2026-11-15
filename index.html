@@ -855,7 +855,7 @@
                                 <th scope="col">🎟️ 售票機結帳</th>
                                 <th scope="col">💵 紙鈔收入</th>
                                 <th scope="col">🪙 硬幣收入</th>
-                                <th scope="col">🔄 各店零錢劃撥</th>
+                                <th scope="col">🔄 零錢劃撥</th>
                                 <th scope="col">🧮 現金合計</th>
                                 <th scope="col">🧾 零用金支出</th>
                                 <th scope="col">💰 實際收入</th>
@@ -1253,7 +1253,7 @@
                                 ${ticketAmountInput(data.ticket, Boolean(data.cannotCheckout))}
                                 ${amountInput('amount-bills', '紙鈔收入', data.bills)}
                                 ${amountInput('amount-coins', '硬幣收入', data.coins)}
-                                ${amountInput('amount-coin-transfer', '各店零錢劃撥', data.coinTransfer)}
+                                ${amountInput('amount-coin-transfer', '零錢劃撥', data.coinTransfer)}
                                 <div class="calculation-panel single-calculation" aria-live="polite">
                                     <div class="calc-item"><span class="calc-label">現金合計</span><strong id="preview-cash-total" class="calc-value">NT$ 0</strong></div>
                                 </div>
