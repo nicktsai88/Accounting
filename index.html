@@ -1419,14 +1419,21 @@
         async function initCloud() {
             try {
                 const [{ initializeApp }, authApi, firestoreApi, functionsApi] = await Promise.all([
-                    import('https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js'),
-                    import('https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js'),
-                    import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js'),
-                    import('https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js')
+                    import('https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js'),
+                    import('https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js'),
+                    import('https://www.gstatic.com/firebasejs/13.3.0/firebase-firestore.js'),
+                    import('https://www.gstatic.com/firebasejs/13.3.0/firebase-functions.js')
                 ]);
                 const actualConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
                 const firebaseApp = initializeApp(actualConfig, APP_NAMESPACE);
-                const auth = authApi.getAuth(firebaseApp);
+                const auth = authApi.initializeAuth(firebaseApp, {
+                    persistence: [
+                        authApi.indexedDBLocalPersistence,
+                        authApi.browserLocalPersistence,
+                        authApi.browserSessionPersistence,
+                        authApi.inMemoryPersistence
+                    ]
+                });
                 const db = firestoreApi.getFirestore(firebaseApp);
                 const functions = functionsApi.getFunctions(firebaseApp, 'us-central1');
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
