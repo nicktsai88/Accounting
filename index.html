@@ -1079,7 +1079,7 @@
                 modalRoot.innerHTML = `
                     <div class="modal-backdrop" role="presentation" onclick="if(event.target===this) closeModal(true)">
                         <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="activation-title">
-                            <div class="modal-header"><div><h2 id="activation-title">🔑 ${name}的首次啟用碼</h2><p>請私下交給本人；完成首次設定後立即失效。</p></div><button class="modal-close" type="button" onclick="closeModal(true)">×</button></div>
+                            <div class="modal-header"><div><h2 id="activation-title">🔑 ${name}的首次啟用碼</h2><p>有效期限為 24 小時；完成首次設定後會立即失效。</p></div><button class="modal-close" type="button" onclick="closeModal(true)">×</button></div>
                             <div class="modal-body"><div class="activation-code">${escapeAttribute(result.activationCode || '')}</div><p class="touch-hint">有效期限：${new Date(result.expiresAt).toLocaleString('zh-TW')}</p></div>
                             <div class="modal-actions"><button class="primary-button" type="button" onclick="closeModal(true)">完成</button></div>
                         </section>
