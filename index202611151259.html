@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f472b6">
+    <meta name="application-name" content="Accounting">
+    <title>🌸 Accounting｜囍事快剪結賬紀錄表 ✨</title>
+    <style>
+        :root {
+            --navy: #8f4668;
+            --navy-2: #a85a7a;
+            --ink: #684052;
+            --muted: #9b7486;
+            --canvas: #fff7fa;
+            --surface: #ffffff;
+            --line: #f1d6e0;
+            --soft: #fff4f8;
+            --amber: #e99ab4;
+            --amber-soft: #fff0f5;
+            --teal: #c96b92;
+            --teal-soft: #faedf3;
+            --red: #e11d48;
+            --red-soft: #fff1f2;
+            --green: #16825f;
+            --green-soft: #e5f5ef;
+            --shadow: 0 18px 50px rgba(143, 70, 104, .12);
+            --shadow-sm: 0 8px 24px rgba(168, 90, 122, .09);
+            --radius: 22px;
+        }
+
+        * { box-sizing: border-box; }
+        html { min-height: 100%; background: var(--canvas); }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
+            font-size: 17px;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 12% 3%, rgba(236, 166, 187, .16), transparent 25rem),
+                radial-gradient(circle at 93% 8%, rgba(225, 166, 194, .15), transparent 28rem),
+                radial-gradient(circle at 50% 100%, rgba(242, 190, 204, .14), transparent 32rem),
+                linear-gradient(145deg, #fffafc 0%, #fceef4 52%, #fff7fa 100%);
+            font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button, input { font: inherit; }
+        button { color: inherit; }
+        button:focus-visible, input:focus-visible {
+            outline: 3px solid rgba(217, 154, 43, .35);
+            outline-offset: 3px;
+        }
+        .hidden { display: none !important; }
+        .app { min-height: 100dvh; }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            min-height: 74px;
+            padding: 12px max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left));
+            color: #fff;
+            background: linear-gradient(120deg, rgba(143, 70, 104, .96), rgba(199, 108, 147, .95), rgba(225, 139, 164, .95));
+            border-bottom: 1px solid rgba(255,255,255,.12);
+            backdrop-filter: blur(16px);
+        }
+        .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .brand-logo-card { display: grid; place-items: center; flex: 0 0 auto; padding: 5px 9px; border-radius: 13px; background: rgba(255,255,255,.94); box-shadow: 0 8px 22px rgba(157,23,77,.18); }
+        .brand-logo { display: block; width: 132px; height: 34px; object-fit: contain; }
+        .brand-copy { min-width: 0; }
+        .brand-name { font-weight: 900; letter-spacing: .04em; font-size: 18px; }
+        .brand-page { margin-top: 2px; color: #fff5f8; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .topbar-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+        .connection-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            min-height: 34px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.10);
+            color: #eaf0f4;
+            font-size: 13px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .connection-dot { width: 8px; height: 8px; border-radius: 50%; background: #efb84e; box-shadow: 0 0 0 4px rgba(239,184,78,.12); }
+        .connection-badge.online .connection-dot { background: #5dd2ad; box-shadow: 0 0 0 4px rgba(93,210,173,.12); }
+        .connection-badge.offline .connection-dot { background: #f28a8a; box-shadow: 0 0 0 4px rgba(242,138,138,.12); }
+        .connection-badge.saving .connection-dot { animation: pulse 1s infinite; }
+        @keyframes pulse { 50% { opacity: .35; transform: scale(.78); } }
+
+        .icon-button, .secondary-button, .primary-button, .ghost-button {
+            border: 0;
+            cursor: pointer;
+            min-height: 44px;
+            border-radius: 13px;
+            font-weight: 900;
+            font-size: 16px;
+            transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+        }
+        .icon-button:hover, .secondary-button:hover, .primary-button:hover, .ghost-button:hover { transform: translateY(-1px); }
+        .icon-button { display: inline-grid; place-items: center; width: 44px; padding: 0; background: rgba(255,255,255,.11); color: #fff; }
+        .ghost-button { padding: 0 16px; background: rgba(255,255,255,.11); color: #fff; }
+        .primary-button { padding: 0 22px; background: linear-gradient(135deg, #d989a5, #cf79a0); color: #fff; box-shadow: 0 8px 20px rgba(168,90,122,.22); }
+        .secondary-button { padding: 0 18px; background: var(--soft); color: var(--navy); }
+
+        .page {
+            width: min(1440px, 100%);
+            margin: 0 auto;
+            padding: 34px 26px calc(54px + env(safe-area-inset-bottom));
+        }
+        .page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+        .eyebrow { margin: 0 0 7px; color: var(--teal); font-weight: 900; font-size: 14px; letter-spacing: .13em; text-transform: uppercase; }
+        h1, h2, h3, p { margin-top: 0; }
+        h1 { margin-bottom: 9px; color: var(--navy); font-size: clamp(30px, 4vw, 46px); line-height: 1.2; letter-spacing: -.025em; }
+        .lead { margin-bottom: 0; color: var(--muted); font-size: 17px; line-height: 1.7; }
+
+        .login-page {
+            min-height: 100dvh;
+            display: grid;
+            grid-template-columns: minmax(320px, .85fr) minmax(560px, 1.15fr);
+        }
+        .login-intro {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100%;
+            padding: clamp(34px, 7vw, 82px);
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 15% 10%, rgba(255,255,255,.28), transparent 16rem),
+                radial-gradient(circle at 95% 88%, rgba(255,228,236,.35), transparent 24rem),
+                linear-gradient(145deg, #a95f80 0%, #cb7a9d 48%, #e391aa 100%);
+        }
+        .login-brand { position: relative; z-index: 2; display: flex; align-items: center; gap: 14px; }
+        .login-brand .brand-logo-card { padding: 7px 12px; border-radius: 16px; }
+        .login-brand .brand-logo { width: min(250px, 34vw); height: 54px; }
+        .login-copy { position: relative; z-index: 2; max-width: 580px; padding: 68px 0; }
+        .login-copy .eyebrow { color: #fff0a8; }
+        .login-copy h1 { max-width: 11em; color: #fff; font-size: clamp(42px, 6vw, 70px); }
+        .login-copy p { max-width: 36em; color: #fff4f8; font-size: 19px; line-height: 1.8; }
+        .login-note { position: relative; z-index: 2; color: #ffe6ef; font-size: 14px; line-height: 1.7; }
+        .hero-logo-card { width: min(470px, 100%); margin: 0 auto 34px; padding: 16px 22px; border: 2px solid rgba(255,255,255,.62); border-radius: 24px; background: rgba(255,255,255,.95); box-shadow: 0 20px 50px rgba(122,20,64,.22); transform: none; }
+        .hero-logo-card img { display: block; width: 100%; height: auto; }
+        .emoji-ribbon { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; font-size: 25px; filter: drop-shadow(0 4px 7px rgba(122,20,64,.2)); }
+        .sakura-sprinkles { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+        .sakura-sprinkles span { position: absolute; opacity: .32; filter: drop-shadow(0 5px 8px rgba(122,20,64,.18)); }
+        .sakura-sprinkles span:nth-child(1) { left: 7%; top: 18%; font-size: 34px; transform: rotate(-14deg); }
+        .sakura-sprinkles span:nth-child(2) { right: 9%; top: 12%; font-size: 46px; transform: rotate(18deg); }
+        .sakura-sprinkles span:nth-child(3) { left: 17%; bottom: 12%; font-size: 54px; transform: rotate(12deg); }
+        .sakura-sprinkles span:nth-child(4) { right: 13%; bottom: 24%; font-size: 30px; transform: rotate(-18deg); }
+        .sakura-sprinkles span:nth-child(5) { left: 45%; top: 4%; font-size: 26px; }
+        .login-select {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: clamp(30px, 6vw, 78px);
+        }
+        .login-select-inner { width: min(670px, 100%); margin: auto; }
+        .login-select h2 { margin-bottom: 8px; color: var(--navy); font-size: clamp(32px, 4vw, 46px); }
+        .profile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 30px; }
+        .profile-card {
+            position: relative;
+            min-height: 260px;
+            overflow: hidden;
+            padding: 28px;
+            text-align: left;
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            background: rgba(255,255,255,.86);
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+        }
+        .profile-card::after { content: "🌸"; position: absolute; display: grid; place-items: center; width: 160px; height: 160px; right: -72px; bottom: -70px; border-radius: 50%; background: var(--profile-soft); font-size: 54px; }
+        .profile-card:hover { transform: translateY(-5px); border-color: var(--profile); box-shadow: var(--shadow); }
+        .profile-avatar {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            place-items: center;
+            width: 82px;
+            height: 82px;
+            margin-bottom: 34px;
+            border-radius: 26px;
+            color: #fff;
+            background: linear-gradient(145deg, var(--profile), #dda0b6);
+            font-size: 34px;
+            font-weight: 900;
+            box-shadow: 0 12px 24px color-mix(in srgb, var(--profile) 26%, transparent);
+        }
+        .profile-card h3 { position: relative; z-index: 1; margin-bottom: 7px; color: var(--navy); font-size: 29px; }
+        .profile-meta { position: relative; z-index: 1; color: var(--muted); font-size: 16px; font-weight: 700; }
+        .profile-enter { position: absolute; z-index: 2; right: 24px; top: 26px; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; color: var(--profile); background: var(--profile-soft); font-size: 20px; }
+        .admin-login-button { width: 100%; margin-top: 18px; padding: 16px 18px; border: 1px solid #eab8cb; border-radius: 16px; color: var(--navy); background: linear-gradient(135deg, #fff, #fff1f6); box-shadow: var(--shadow-sm); cursor: pointer; font-size: 17px; font-weight: 900; }
+        .admin-login-button:hover { border-color: var(--amber); transform: translateY(-1px); }
+        .login-status { margin-top: 24px; display: flex; justify-content: center; }
+        .login-status .connection-badge { background: #fff; color: var(--muted); border: 1px solid var(--line); }
+
+        .year-control { display: flex; align-items: center; gap: 8px; padding: 6px; border: 1px solid var(--line); border-radius: 16px; background: #fff; box-shadow: var(--shadow-sm); }
+        .year-control button { width: 46px; height: 46px; border: 0; border-radius: 11px; background: var(--soft); color: var(--navy); cursor: pointer; font-size: 21px; }
+        .year-value { min-width: 110px; text-align: center; color: var(--navy); font-size: 23px; font-weight: 900; }
+
+        .month-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+        .month-card { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,255,255,.93); box-shadow: var(--shadow-sm); }
+        .month-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px 15px; border-bottom: 1px solid var(--line); background: linear-gradient(135deg, #fffafc, #fbedf3); }
+        .month-card-header h2 { margin: 0; color: var(--navy); font-size: 23px; }
+        .month-count { padding: 6px 10px; border-radius: 999px; background: var(--soft); color: var(--muted); font-size: 13px; font-weight: 900; }
+        .slot-list { display: grid; gap: 9px; padding: 14px; }
+        .slot-shell { position: relative; }
+        .closing-slot {
+            width: 100%;
+            min-height: 72px;
+            display: grid;
+            grid-template-columns: 40px minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 11px;
+            padding: 10px 12px;
+            text-align: left;
+            border: 1px dashed #f4aac7;
+            border-radius: 15px;
+            background: #fbfcfc;
+            cursor: pointer;
+            transition: background .18s ease, border-color .18s ease, transform .18s ease;
+        }
+        .closing-slot:hover { transform: translateY(-1px); border-color: var(--teal); background: #fff3f7; }
+        .closing-slot.has-date { padding-right: 48px; border-style: solid; border-color: #f5b6cf; background: linear-gradient(135deg, #fff1f6, var(--teal-soft)); }
+        .slot-number { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; color: var(--navy); background: var(--soft); font-size: 17px; font-weight: 900; }
+        .has-date .slot-number { color: #fff; background: var(--teal); }
+        .slot-copy { min-width: 0; }
+        .slot-title { display: block; color: var(--navy); font-size: 17px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .slot-subtitle { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; font-weight: 700; }
+        .slot-arrow { color: var(--teal); font-size: 20px; }
+        .date-edit {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: grid;
+            place-items: center;
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: 10px;
+            color: var(--teal);
+            background: rgba(255,255,255,.72);
+            cursor: pointer;
+        }
+
+        .summary-banner {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 18px 20px;
+            border: 1px solid #f6bed2;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, #fff8fb, #ffe4ee, var(--teal-soft));
+        }
+        .back-button { display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 16px; border: 1px solid var(--line); border-radius: 13px; background: #fff; color: var(--navy); font-size: 16px; font-weight: 900; cursor: pointer; }
+        .closing-date { color: var(--navy); font-size: 23px; font-weight: 900; }
+        .closing-context { margin-top: 4px; color: var(--muted); font-size: 14px; font-weight: 700; }
+        .progress-pill { min-width: 120px; padding: 11px 14px; text-align: center; border-radius: 13px; background: #fff; color: var(--teal); font-size: 14px; font-weight: 900; box-shadow: var(--shadow-sm); }
+        .formula-note { margin: 0 0 18px; padding: 13px 17px; border-left: 4px solid var(--amber); border-radius: 0 12px 12px 0; background: var(--amber-soft); color: #7c3659; font-size: 15px; font-weight: 800; line-height: 1.7; }
+
+        .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); }
+        .summary-table { width: 100%; min-width: 0; table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+        .summary-table th { position: sticky; top: 0; z-index: 2; width: 10.875%; padding: 16px 7px; color: #fff; background: linear-gradient(135deg, #a75b7c, #c87499); font-size: 16px; letter-spacing: 0; line-height: 1.4; text-align: center; white-space: normal; }
+        .summary-table th:first-child { left: 0; z-index: 4; width: 13%; text-align: left; }
+        .summary-table td { height: 70px; padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: right; font-size: 16px; font-variant-numeric: tabular-nums; font-weight: 800; white-space: nowrap; }
+        .summary-table tbody tr:last-child td { border-bottom: 0; }
+        .summary-table tbody tr:hover td { background: #fff5f8; }
+        .summary-table td:first-child { position: sticky; left: 0; z-index: 1; background: #fff; text-align: left; }
+        .branch-cell { display: flex; align-items: center; gap: 10px; }
+        .branch-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 46px;
+            padding: 6px 12px 6px 7px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fff;
+            color: var(--navy);
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 900;
+            transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+        }
+        .branch-button:hover { transform: translateY(-1px); border-color: var(--amber); box-shadow: var(--shadow-sm); }
+        .store-icon { position: relative; display: grid; place-items: center; width: 38px; height: 38px; border: 2px solid #ffc4d9; border-radius: 13px; background: linear-gradient(145deg, #fffafc, #ffe4ee); overflow: hidden; box-shadow: 0 5px 12px rgba(236,72,153,.16); font-size: 23px; }
+        .store-icon::before { content: "💈"; filter: drop-shadow(0 2px 3px rgba(190,24,93,.15)); }
+        .store-icon::after { content: none; }
+        .branch-status { color: var(--teal); font-size: 13px; }
+        .locked-cell { color: #7c3659; background: #fffafd; cursor: not-allowed; user-select: none; }
+        .locked-cell.empty { color: #b5bfc5; font-weight: 600; }
+        .diff-positive { color: var(--green) !important; background: var(--green-soft) !important; box-shadow: inset 0 0 0 2px #6ee7a3, inset 0 0 20px rgba(34,197,94,.28); text-shadow: 0 0 9px rgba(34,197,94,.38); }
+        .diff-negative { color: var(--red) !important; background: var(--red-soft) !important; box-shadow: inset 0 0 0 2px #ff7a9e, inset 0 0 20px rgba(244,63,94,.3); text-shadow: 0 0 9px rgba(244,63,94,.38); }
+        .status-cell { text-align: center !important; }
+        .checkout-alert { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 7px 9px; border: 2px solid #ff4d7d; border-radius: 10px; color: #e11d48; background: #fff0f4; box-shadow: 0 0 14px rgba(255,45,101,.5), inset 0 0 12px rgba(255,77,125,.16); text-shadow: 0 0 8px rgba(225,29,72,.42); font-size: 14px; font-weight: 900; white-space: nowrap; }
+        .total-row td { position: sticky; bottom: 0; z-index: 1; color: var(--navy); background: #ffe8f0 !important; border-top: 2px solid #f3b5cd; border-bottom: 0; font-weight: 900; }
+        .total-row td:first-child { z-index: 3; }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 80;
+            display: grid;
+            place-items: center;
+            padding: 18px;
+            background: rgba(14, 30, 43, .58);
+            backdrop-filter: blur(8px);
+        }
+        .modal-card { width: min(560px, 100%); max-height: min(90dvh, 860px); overflow: auto; border-radius: 26px; background: #fff; box-shadow: 0 30px 90px rgba(9,25,37,.32); }
+        .modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 24px 24px 17px; border-bottom: 1px solid var(--line); }
+        .modal-header h2 { margin-bottom: 6px; color: var(--navy); font-size: 27px; }
+        .modal-header p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.6; }
+        .modal-close { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 auto; border: 0; border-radius: 12px; background: var(--soft); color: var(--navy); cursor: pointer; font-size: 22px; }
+        .modal-body { padding: 22px 24px 8px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 24px 24px; }
+        .field { margin-bottom: 17px; }
+        .field label { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; color: var(--navy); font-size: 15px; font-weight: 900; }
+        .field-note { color: var(--muted); font-size: 13px; font-weight: 700; }
+        .field input { width: 100%; min-height: 56px; padding: 13px 14px; border: 1px solid #efb5cd; border-radius: 13px; background: #fff; color: var(--ink); font-size: 20px; font-weight: 800; }
+        .field input:focus { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(217,154,43,.12); outline: 0; }
+        .field-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+        .field-title-row > label { margin: 0; }
+        .checkout-toggle { display: inline-flex !important; align-items: center; justify-content: flex-start !important; gap: 8px !important; margin: 0 !important; padding: 8px 11px; border: 1px solid #ffb4ca; border-radius: 11px; color: #c72f5a !important; background: #fff2f6; cursor: pointer; white-space: nowrap; }
+        .checkout-toggle input { appearance: auto; width: 20px !important; height: 20px; min-height: 20px !important; flex: 0 0 20px; margin: 0; padding: 0 !important; border: 0 !important; border-radius: 4px; box-shadow: none !important; accent-color: #e11d48; cursor: pointer; }
+        .checkout-toggle span { font-size: 15px; font-weight: 900; }
+        input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { appearance: none; margin: 0; }
+        input[type="number"] { appearance: textfield; }
+        .money-input { position: relative; }
+        .money-input::before { content: "NT$"; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; font-weight: 900; pointer-events: none; }
+        .money-input input { padding-left: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+        .expense-list { display: grid; gap: 12px; margin: 4px 0 18px; }
+        .expense-card { padding: 15px; border: 1px solid #f0cad9; border-radius: 16px; background: #fff8fb; }
+        .expense-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; color: var(--navy); font-size: 16px; font-weight: 900; }
+        .expense-optional { color: var(--muted); font-size: 13px; font-weight: 700; }
+        .expense-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(150px, .75fr); gap: 12px; }
+        .expense-grid .field { margin-bottom: 0; }
+        .expense-grid .field label { font-size: 14px; }
+        .expense-grid .field input { min-height: 52px; font-size: 17px; }
+        .calculation-panel { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; padding: 14px; border-radius: 16px; background: var(--soft); }
+        .calculation-panel.single-calculation { grid-template-columns: 1fr; margin: -2px 0 18px; }
+        .calculation-panel.three-column { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .calc-item { padding: 10px; border-radius: 12px; background: #fff; }
+        .calc-label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 13px; font-weight: 800; }
+        .calc-value { color: var(--navy); font-size: 23px; font-weight: 900; font-variant-numeric: tabular-nums; }
+        .touch-hint { margin: 12px 0 0; color: var(--muted); font-size: 13px; line-height: 1.7; text-align: center; }
+        .auth-form .field:last-of-type { margin-bottom: 8px; }
+        .auth-user-badge { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 18px; padding: 8px 12px; border-radius: 999px; color: var(--navy); background: var(--soft); font-weight: 900; }
+        .auth-message { min-height: 24px; margin: 8px 0 0; color: var(--red); font-size: 14px; font-weight: 800; line-height: 1.6; }
+        .auth-switch { width: 100%; margin-top: 10px; border: 0; color: var(--teal); background: transparent; cursor: pointer; font-size: 14px; font-weight: 900; }
+        .password-guidance { margin: -5px 0 15px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+        .admin-page { width: min(1280px, 100%); margin: 0 auto; padding: 34px 26px 60px; }
+        .admin-hero { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 22px; padding: 24px; border: 1px solid #f3bfd2; border-radius: 22px; background: linear-gradient(135deg, #fff8fb, #ffeaf2); box-shadow: var(--shadow-sm); }
+        .admin-hero h1 { margin-bottom: 6px; }
+        .admin-hero p { margin: 0; color: var(--muted); font-size: 16px; }
+        .admin-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 22px; }
+        .admin-stat { padding: 18px; border: 1px solid var(--line); border-radius: 17px; background: #fff; box-shadow: var(--shadow-sm); }
+        .admin-stat span { display: block; margin-bottom: 6px; color: var(--muted); font-size: 13px; font-weight: 800; }
+        .admin-stat strong { color: var(--navy); font-size: 28px; }
+        .admin-users { display: grid; gap: 14px; }
+        .admin-user-card { display: grid; grid-template-columns: minmax(180px, 1fr) auto; align-items: center; gap: 18px; padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: var(--shadow-sm); }
+        .admin-user-name { display: flex; align-items: center; gap: 12px; color: var(--navy); font-size: 22px; font-weight: 900; }
+        .admin-user-meta { margin-top: 7px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+        .account-status { display: inline-flex; margin-left: 8px; padding: 5px 9px; border-radius: 999px; font-size: 12px; font-weight: 900; }
+        .account-status.active { color: var(--green); background: var(--green-soft); }
+        .account-status.pending { color: #a16207; background: #fff7d6; }
+        .account-status.disabled { color: var(--red); background: var(--red-soft); }
+        .admin-user-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+        .small-action { min-height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 11px; color: var(--navy); background: var(--soft); cursor: pointer; font-size: 14px; font-weight: 900; }
+        .small-action.danger { color: var(--red); background: var(--red-soft); }
+        .activation-code { padding: 18px; border: 2px dashed #e787a9; border-radius: 15px; color: var(--navy); background: #fff7fa; text-align: center; font-size: 28px; font-weight: 900; letter-spacing: .1em; user-select: all; }
+
+        .toast {
+            position: fixed;
+            z-index: 120;
+            left: 50%;
+            bottom: calc(24px + env(safe-area-inset-bottom));
+            transform: translate(-50%, 20px);
+            min-width: min(330px, calc(100vw - 36px));
+            padding: 13px 18px;
+            border-radius: 14px;
+            color: #fff;
+            background: var(--navy);
+            box-shadow: var(--shadow);
+            text-align: center;
+            font-size: 15px;
+            font-weight: 900;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease, transform .2s ease;
+        }
+        .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+        @media (max-width: 1100px) {
+            .month-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .login-page { grid-template-columns: .8fr 1.2fr; }
+            .summary-table { min-width: 1100px; }
+        }
+        @media (max-width: 860px) {
+            .login-page { display: block; }
+            .login-intro { min-height: auto; padding: 28px 24px; }
+            .login-copy { padding: 52px 0 30px; }
+            .login-copy h1 { font-size: 45px; }
+            .login-note { display: none; }
+            .login-select { padding: 42px 22px 60px; }
+            .month-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .page-heading { align-items: center; }
+        }
+        @media (max-width: 620px) {
+            .topbar { min-height: 66px; padding: 10px 14px; }
+            .brand-logo { width: 92px; height: 30px; }
+            .brand-copy { display: none; }
+            .connection-badge { max-width: 122px; overflow: hidden; }
+            .ghost-button { width: 44px; padding: 0; font-size: 0; }
+            .ghost-button::after { content: "👋"; font-size: 20px; }
+            .page { padding: 24px 14px 40px; }
+            .page-heading { align-items: flex-start; }
+            .page-heading .lead { max-width: 18em; }
+            .month-grid { grid-template-columns: 1fr; }
+            .profile-grid { gap: 12px; }
+            .profile-card { min-height: 220px; padding: 20px; }
+            .profile-avatar { width: 66px; height: 66px; margin-bottom: 28px; border-radius: 21px; font-size: 28px; }
+            .profile-card h3 { font-size: 23px; }
+            .profile-enter { right: 18px; top: 19px; }
+            .summary-banner { grid-template-columns: 1fr auto; }
+            .back-button { grid-column: 1 / -1; width: fit-content; }
+            .progress-pill { min-width: 92px; }
+            .modal-backdrop { align-items: end; padding: 0; }
+            .modal-card { width: 100%; max-height: 94dvh; border-radius: 24px 24px 0 0; padding-bottom: env(safe-area-inset-bottom); }
+            .modal-header, .modal-body { padding-left: 18px; padding-right: 18px; }
+            .modal-actions { position: sticky; bottom: 0; padding: 14px 18px; background: rgba(255,255,255,.96); border-top: 1px solid var(--line); backdrop-filter: blur(10px); }
+            .modal-actions button { flex: 1; }
+            .expense-grid { grid-template-columns: 1fr; }
+            .calculation-panel.three-column { grid-template-columns: 1fr; }
+            .admin-page { padding: 24px 14px 44px; }
+            .admin-hero { align-items: flex-start; flex-direction: column; }
+            .admin-summary { grid-template-columns: 1fr; }
+            .admin-user-card { grid-template-columns: 1fr; }
+            .admin-user-actions { justify-content: flex-start; }
+        }
+        @media (max-width: 420px) {
+            .profile-grid { grid-template-columns: 1fr; }
+            .profile-card { min-height: 170px; }
+            .profile-avatar { margin-bottom: 18px; }
+            .login-copy h1 { font-size: 38px; }
+            .year-control { gap: 4px; }
+            .year-value { min-width: 78px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        }
+        @media print {
+            .topbar, .back-button, .formula-note { display: none !important; }
+            body { background: #fff; }
+            .page { width: 100%; padding: 0; }
+            .table-wrap { overflow: visible; border: 0; box-shadow: none; }
+            .summary-table { min-width: 0; }
+        }
+    </style>
+</head>
+<body>
+    <main id="app" class="app"></main>
+    <div id="modal-root"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script type="module">
+        // 所有資料與雲端路徑統一使用 Accounting 命名空間。
+        const APP_NAMESPACE = 'Accounting';
+        const COLLECTION_NAME = 'Accounting';
+        const PROFILE_COLLECTION = 'Accounting_profiles';
+        const STORAGE_PREFIX = 'Accounting';
+        const INITIAL_YEAR = 2026;
+        const AUTH_EMAILS = {
+            Nick: 'nick@xishihaircut.internal',
+            '小雯': 'xiaowen@xishihaircut.internal',
+            '彩屏': 'caiping@xishihaircut.internal'
+        };
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxQFt76ZPXE7d0i1XeNZ1yiiD2WYNIfHs",
+            authDomain: "chinese-learning-47f4d.firebaseapp.com",
+            projectId: "chinese-learning-47f4d",
+            storageBucket: "chinese-learning-47f4d.firebasestorage.app",
+            messagingSenderId: "76289812052",
+            appId: "1:76289812052:web:898384a916f9f341f62fc1"
+        };
+
+        const profiles = {
+            '小雯': {
+                color: '#c66f96', soft: '#faedf3', emoji: '🌷',
+                branches: ['陽明', '大昌', '建興', '後昌', '左營', '明誠', '華榮', '光遠', '大社', '內惟', '一心', '五甲', '瑞隆', '德惠']
+            },
+            '彩屏': {
+                color: '#d9879f', soft: '#fff0f4', emoji: '🌈',
+                branches: ['自由', '福山', '大寮', '復興', '鼎中', '十全', '草屯', '華夏', '武廟', '小港']
+            }
+        };
+
+        let username = '';
+        let userData = emptyUserData('');
+        let currentView = 'login';
+        let currentYear = INITIAL_YEAR;
+        let currentSelection = null;
+        let connectionStatus = 'loading';
+        let cloud = null;
+        let unsubscribeProfile = null;
+        let branchDirty = false;
+        let toastTimer = null;
+        let authState = { uid: '', role: '', profile: '' };
+        let adminUsers = [];
+
+        const $ = (selector, root = document) => root.querySelector(selector);
+        const app = $('#app');
+        const modalRoot = $('#modal-root');
+
+        function emptyUserData(name) {
+            return { collectionName: COLLECTION_NAME, profile: name, records: {}, updatedAt: '' };
+        }
+
+        function normalizeUserData(raw, name) {
+            const safe = raw && typeof raw === 'object' ? raw : {};
+            return {
+                collectionName: COLLECTION_NAME,
+                profile: name,
+                records: safe.records && typeof safe.records === 'object' ? safe.records : {},
+                updatedAt: typeof safe.updatedAt === 'string' ? safe.updatedAt : ''
+            };
+        }
+
+        function storageKey(name) { return `${STORAGE_PREFIX}:profile:${name}`; }
+
+        function loadLocalData(name) {
+            try {
+                const raw = localStorage.getItem(storageKey(name));
+                userData = normalizeUserData(raw ? JSON.parse(raw) : null, name);
+            } catch (_) {
+                userData = emptyUserData(name);
+            }
+        }
+
+        function saveLocalData() {
+            if (!username) return;
+            try { localStorage.setItem(storageKey(username), JSON.stringify(userData)); } catch (_) {}
+        }
+
+        function getRecord(year, month, slot, create = false) {
+            const y = String(year), m = String(month), s = String(slot);
+            if (!userData.records[y]) {
+                if (!create) return null;
+                userData.records[y] = {};
+            }
+            if (!userData.records[y][m]) {
+                if (!create) return null;
+                userData.records[y][m] = {};
+            }
+            if (!userData.records[y][m][s]) {
+                if (!create) return null;
+                userData.records[y][m][s] = { date: '', branches: {}, updatedAt: '' };
+            }
+            const record = userData.records[y][m][s];
+            if (!record.branches || typeof record.branches !== 'object') record.branches = {};
+            return record;
+        }
+
+        function amount(value) {
+            const parsed = Number(value);
+            return Number.isFinite(parsed) ? parsed : 0;
+        }
+
+        function pettyAmounts(data) {
+            const hasSplitExpenses = ['petty1', 'petty2', 'petty3'].some((key) => data && Object.prototype.hasOwnProperty.call(data, key));
+            return hasSplitExpenses
+                ? [amount(data?.petty1), amount(data?.petty2), amount(data?.petty3)]
+                : [amount(data?.petty), 0, 0];
+        }
+
+        function pettyInputValues(data) {
+            const hasSplitExpenses = ['petty1', 'petty2', 'petty3'].some((key) => data && Object.prototype.hasOwnProperty.call(data, key));
+            return hasSplitExpenses
+                ? [data?.petty1 ?? '', data?.petty2 ?? '', data?.petty3 ?? '']
+                : [data?.petty ?? '', '', ''];
+        }
+
+        function pettyTotal(data) {
+            return pettyAmounts(data).reduce((total, value) => total + value, 0);
+        }
+
+        function escapeAttribute(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function pettyItemSummary(data) {
+            return [1, 2, 3]
+                .map((index) => String(data?.[`pettyItem${index}`] || '').trim())
+                .filter(Boolean)
+                .join('、');
+        }
+
+        function branchCalculation(data) {
+            const cashTotal = amount(data?.bills) + amount(data?.coins);
+            const petty = pettyTotal(data);
+            const actualIncome = cashTotal + petty;
+            const diff = actualIncome - amount(data?.ticket);
+            return { cashTotal, pettyTotal: petty, actualIncome, diff };
+        }
+
+        function money(value) {
+            return new Intl.NumberFormat('zh-TW', { maximumFractionDigits: 0 }).format(amount(value));
+        }
+
+        function moneyCell(value, saved) { return saved ? `NT$ ${money(value)}` : '—'; }
+
+        function formatDate(dateString, full = false) {
+            if (!dateString) return '';
+            const date = new Date(`${dateString}T12:00:00`);
+            return new Intl.DateTimeFormat('zh-TW', full
+                ? { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }
+                : { month: 'numeric', day: 'numeric', weekday: 'short' }
+            ).format(date);
+        }
+
+        function isoNow() { return new Date().toISOString(); }
+        function lastDayOfMonth(year, month) { return new Date(year, month, 0).getDate(); }
+        function pad(number) { return String(number).padStart(2, '0'); }
+
+        function connectionMeta() {
+            if (connectionStatus === 'online') return { text: '☁️ 雲端已同步 ✨', className: 'online' };
+            if (connectionStatus === 'saving') return { text: '💾 正在儲存...', className: 'saving' };
+            if (connectionStatus === 'offline') return { text: '📱 離線儲存', className: 'offline' };
+            return { text: '🌸 連線中...', className: 'saving' };
+        }
+
+        function connectionBadge() {
+            const state = connectionMeta();
+            return `<span class="connection-badge ${state.className}"><span class="connection-dot"></span><span class="connection-text">${state.text}</span></span>`;
+        }
+
+        function updateConnectionBadges() {
+            const state = connectionMeta();
+            document.querySelectorAll('.connection-badge').forEach((badge) => {
+                badge.className = `connection-badge ${state.className}`;
+                const text = $('.connection-text', badge);
+                if (text) text.textContent = state.text;
+            });
+        }
+
+        function topbar(pageName) {
+            return `
+                <header class="topbar">
+                    <div class="brand">
+                        <div class="brand-logo-card"><img class="brand-logo" src="assets/logo.png" alt="囍事快剪"></div>
+                        <div class="brand-copy">
+                            <div class="brand-name">🌸 Accounting</div>
+                            <div class="brand-page">${pageName} · ${username}</div>
+                        </div>
+                    </div>
+                    <div class="topbar-actions">
+                        ${connectionBadge()}
+                        ${authState.role === 'admin' && username !== 'Nick' ? '<button class="ghost-button" type="button" onclick="renderAdmin()">🛡️ 管理後台</button>' : ''}
+                        <button class="ghost-button" type="button" onclick="logout()">👋 切換使用者</button>
+                    </div>
+                </header>`;
+        }
+
+        function showToast(message) {
+            const toast = $('#toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+        }
+
+        function renderLogin() {
+            currentView = 'login';
+            app.innerHTML = `
+                <section class="login-page">
+                    <div class="login-intro">
+                        <div class="sakura-sprinkles" aria-hidden="true"><span>🌸</span><span>🌺</span><span>✨</span></div>
+                        <div class="login-brand">
+                            <div><strong>Accounting</strong><br><span style="color:#fff3f7;font-size:14px">Weekly closing records</span></div>
+                        </div>
+                        <div class="login-copy">
+                            <div class="hero-logo-card"><img src="assets/logo.png" alt="囍事快剪 Logo"></div>
+                            <p class="eyebrow">🌸 結賬紀錄表</p>
+                            <h1>每週結賬，清楚又可愛！</h1>
+                            <p>💗 選擇你的帳號，依日期進入當週統計表。日期、分店金額與差額都會分開保存。</p>
+                            <div class="emoji-ribbon" aria-hidden="true">🌸 ✂️ 💖 💰 ✨</div>
+                        </div>
+                        <div class="login-note">☁️ 資料優先儲存於本機；連上網路後會同步至 Accounting 雲端資料區。</div>
+                    </div>
+                    <div class="login-select">
+                        <div class="login-select-inner">
+                            <p class="eyebrow">🌷 快速登入</p>
+                            <h2>今天由誰結賬？</h2>
+                            <p class="lead">點選專屬圖示，進入各自的日期表與分店清單。</p>
+                            <div class="profile-grid">
+                                ${Object.entries(profiles).map(([name, profile]) => `
+                                    <button class="profile-card" style="--profile:${profile.color};--profile-soft:${profile.soft}" type="button" onclick="openAuthDialog('${name}')" aria-label="以${name}身分登入">
+                                        <span class="profile-enter" aria-hidden="true">🚀</span>
+                                        <span class="profile-avatar" aria-hidden="true">${profile.emoji}</span>
+                                        <h3>${name}</h3>
+                                        <span class="profile-meta">${profile.branches.length} 間分店 · 點我進入</span>
+                                    </button>`).join('')}
+                            </div>
+                            <button class="admin-login-button" type="button" onclick="openAuthDialog('Nick')">🔐 Nick 管理者登入</button>
+                            <div class="login-status">${connectionBadge()}</div>
+                        </div>
+                    </div>
+                </section>`;
+        }
+
+        function renderCalendar() {
+            currentView = 'calendar';
+            const monthCards = Array.from({ length: 12 }, (_, index) => {
+                const month = index + 1;
+                const slots = Array.from({ length: 5 }, (_, slotIndex) => {
+                    const slot = slotIndex + 1;
+                    const record = getRecord(currentYear, month, slot);
+                    const branchCount = record ? Object.values(record.branches || {}).filter((item) => item?.saved).length : 0;
+                    if (record?.date) {
+                        return `
+                            <div class="slot-shell">
+                                <button class="closing-slot has-date" type="button" onclick="openSummary(${currentYear},${month},${slot})">
+                                    <span class="slot-number">${slot}</span>
+                                    <span class="slot-copy">
+                                        <span class="slot-title">📅 ${formatDate(record.date)}</span>
+                                        <span class="slot-subtitle">已完成 ${branchCount}/${profiles[username].branches.length} 間分店</span>
+                                    </span>
+                                </button>
+                                <button class="date-edit" type="button" title="修改日期" aria-label="修改第 ${slot} 次結賬日期" onclick="event.stopPropagation();openDateDialog(${currentYear},${month},${slot})">✏️</button>
+                            </div>`;
+                    }
+                    return `
+                        <button class="closing-slot" type="button" onclick="openDateDialog(${currentYear},${month},${slot})">
+                            <span class="slot-number">${slot}</span>
+                            <span class="slot-copy">
+                                <span class="slot-title">🗓️ 設定結賬日期</span>
+                                <span class="slot-subtitle">第 ${slot} 次結賬</span>
+                            </span>
+                            <span class="slot-arrow" aria-hidden="true">＋</span>
+                        </button>`;
+                }).join('');
+                const setCount = Array.from({ length: 5 }, (_, i) => getRecord(currentYear, month, i + 1)?.date).filter(Boolean).length;
+                return `
+                    <section class="month-card">
+                        <div class="month-card-header"><h2>🌸 ${month} 月</h2><span class="month-count">${setCount}/5 已設定</span></div>
+                        <div class="slot-list">${slots}</div>
+                    </section>`;
+            }).join('');
+
+            app.innerHTML = `
+                ${topbar('📅 日期表')}
+                <div class="page">
+                    <div class="page-heading">
+                        <div>
+                            <p class="eyebrow">${username}的結賬紀錄</p>
+                            <h1>📅 選擇結賬日期</h1>
+                            <p class="lead">每月最多 5 次。空白格先設定日期，已有日期的格子可直接進入統計表。</p>
+                        </div>
+                        <div class="year-control" aria-label="年份選擇">
+                            <button type="button" onclick="changeYear(-1)" aria-label="上一年">⬅️</button>
+                            <span class="year-value">${currentYear}</span>
+                            <button type="button" onclick="changeYear(1)" aria-label="下一年">➡️</button>
+                        </div>
+                    </div>
+                    <div class="month-grid">${monthCards}</div>
+                </div>`;
+        }
+
+        function renderSummary() {
+            currentView = 'summary';
+            const { year, month, slot } = currentSelection;
+            const record = getRecord(year, month, slot);
+            if (!record?.date) { renderCalendar(); return; }
+            const branches = profiles[username].branches;
+            const savedCount = branches.filter((branch) => record.branches?.[branch]?.saved).length;
+            const totals = { ticket: 0, bills: 0, coins: 0, cashTotal: 0, petty: 0, actualIncome: 0, diff: 0, cannotCheckout: 0 };
+
+            const rows = branches.map((branch) => {
+                const data = record.branches?.[branch] || {};
+                const saved = Boolean(data.saved);
+                const calc = branchCalculation(data);
+                if (saved) {
+                    totals.bills += amount(data.bills);
+                    totals.coins += amount(data.coins);
+                    totals.ticket += amount(data.ticket);
+                    totals.cashTotal += calc.cashTotal;
+                    totals.petty += calc.pettyTotal;
+                    totals.actualIncome += calc.actualIncome;
+                    totals.diff += calc.diff;
+                    if (data.cannotCheckout) totals.cannotCheckout += 1;
+                }
+                const diffClass = !saved ? 'empty' : calc.diff > 0 ? 'diff-positive' : calc.diff < 0 ? 'diff-negative' : '';
+                return `
+                    <tr>
+                        <td>
+                            <div class="branch-cell">
+                                <button class="branch-button" type="button" onclick="openBranchEditor('${branch}')" aria-label="輸入${branch}分店金額">
+                                    <span class="store-icon" aria-hidden="true"></span>
+                                    <span>${branch}</span>
+                                    <span class="branch-status">${saved ? '已填' : '待填'}</span>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.ticket, saved)}</td>
+                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.bills, saved)}</td>
+                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.coins, saved)}</td>
+                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(calc.cashTotal, saved)}</td>
+                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true"${saved && pettyItemSummary(data) ? ` title="支出項目：${escapeAttribute(pettyItemSummary(data))}"` : ''}>${moneyCell(calc.pettyTotal, saved)}</td>
+                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(calc.actualIncome, saved)}</td>
+                        <td class="locked-cell ${diffClass}" aria-disabled="true">${moneyCell(calc.diff, saved)}</td>
+                        <td class="locked-cell status-cell ${saved ? '' : 'empty'}" aria-disabled="true">${saved && data.cannotCheckout ? '<span class="checkout-alert">⚠️ 無法結帳</span>' : '—'}</td>
+                    </tr>`;
+            }).join('');
+
+            const totalDiffClass = totals.diff > 0 ? 'diff-positive' : totals.diff < 0 ? 'diff-negative' : '';
+            app.innerHTML = `
+                ${topbar('當週統計總表')}
+                <div class="page">
+                    <div class="summary-banner">
+                        <button class="back-button" type="button" onclick="renderCalendar()">← 返回日期表</button>
+                        <div>
+                            <div class="closing-date">📅 ${formatDate(record.date, true)}</div>
+                            <div class="closing-context">${year} 年 ${month} 月 · 第 ${slot} 次結賬 · ${username}</div>
+                        </div>
+                        <div class="progress-pill">已填 ${savedCount}/${branches.length}</div>
+                    </div>
+                    <p class="formula-note">🔒 統計表已鎖定，只能點選左側分店圖示輸入金額。</p>
+                    <div class="table-wrap">
+                        <table class="summary-table">
+                            <thead><tr>
+                                <th scope="col">分店</th>
+                                <th scope="col">🎟️ 售票機結帳金額</th>
+                                <th scope="col">💵 紙鈔收入</th>
+                                <th scope="col">🪙 硬幣收入</th>
+                                <th scope="col">🧮 現金合計</th>
+                                <th scope="col">🧾 零用金支出合計</th>
+                                <th scope="col">💰 實際收入</th>
+                                <th scope="col">⚖️ 正負差額</th>
+                                <th scope="col">⚠️ 結帳狀態</th>
+                            </tr></thead>
+                            <tbody>${rows}</tbody>
+                            <tfoot><tr class="total-row">
+                                <td>本次合計</td>
+                                <td>NT$ ${money(totals.ticket)}</td>
+                                <td>NT$ ${money(totals.bills)}</td>
+                                <td>NT$ ${money(totals.coins)}</td>
+                                <td>NT$ ${money(totals.cashTotal)}</td>
+                                <td>NT$ ${money(totals.petty)}</td>
+                                <td>NT$ ${money(totals.actualIncome)}</td>
+                                <td class="${totalDiffClass}">NT$ ${money(totals.diff)}</td>
+                                <td class="status-cell">${totals.cannotCheckout ? `<span class="checkout-alert">⚠️ ${totals.cannotCheckout} 間無法結帳</span>` : '—'}</td>
+                            </tr></tfoot>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        function enterProfile(name) {
+            if (!profiles[name] || !authState.uid) return;
+            username = name;
+            currentYear = INITIAL_YEAR;
+            currentSelection = null;
+            loadLocalData(name);
+            renderCalendar();
+            attachProfileListener();
+        }
+
+        window.logout = async function() {
+            if (unsubscribeProfile) unsubscribeProfile();
+            unsubscribeProfile = null;
+            if (cloud?.auth && cloud?.authApi) {
+                try { await cloud.authApi.signOut(cloud.auth); } catch (_) {}
+            }
+            username = '';
+            authState = { uid: '', role: '', profile: '' };
+            userData = emptyUserData('');
+            currentSelection = null;
+            closeModal(true);
+            renderLogin();
+        };
+
+        function authErrorMessage(error) {
+            const code = String(error?.code || '');
+            if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')) return '登入名稱或密碼不正確。';
+            if (code.includes('too-many-requests')) return '嘗試次數過多，請稍後再試。';
+            if (code.includes('network-request-failed')) return '網路連線失敗，請確認網路後再試。';
+            if (code.includes('permission-denied')) return '此帳號沒有執行這項操作的權限。';
+            if (code.includes('failed-precondition')) return error?.message || '目前無法完成設定，請聯絡 Nick。';
+            return error?.message || '操作失敗，請稍後再試。';
+        }
+
+        function setAuthMessage(message) {
+            const element = $('#auth-message');
+            if (element) element.textContent = message || '';
+        }
+
+        async function callBackend(name, data = {}) {
+            if (!cloud?.functions || !cloud?.functionsApi) throw new Error('雲端管理服務尚未連線。');
+            const callable = cloud.functionsApi.httpsCallable(cloud.functions, name);
+            const result = await callable(data);
+            return result.data;
+        }
+
+        window.openAuthDialog = function(name, mode = 'login') {
+            if (!AUTH_EMAILS[name]) return;
+            const isSetup = mode === 'setup' && name !== 'Nick';
+            const emoji = name === 'Nick' ? '🛡️' : profiles[name]?.emoji || '🌸';
+            modalRoot.innerHTML = `
+                <div class="modal-backdrop" role="presentation" onclick="if(event.target===this) closeModal(true)">
+                    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-dialog-title">
+                        <div class="modal-header">
+                            <div><h2 id="auth-dialog-title">${isSetup ? '首次設定登入密碼' : '帳號登入'}</h2><p>密碼由 Firebase 安全驗證，不會儲存在網頁原始碼。</p></div>
+                            <button class="modal-close" type="button" onclick="closeModal(true)" aria-label="關閉">×</button>
+                        </div>
+                        <form class="auth-form" onsubmit="${isSetup ? `completeFirstUse(event,'${name}')` : `submitPasswordLogin(event,'${name}')`}">
+                            <div class="modal-body">
+                                <div class="auth-user-badge">${emoji} 登入名稱：${name}</div>
+                                ${isSetup ? `
+                                    <div class="field"><label for="activation-code">首次啟用碼</label><input id="activation-code" type="text" inputmode="text" autocomplete="one-time-code" maxlength="24" required placeholder="請輸入 Nick 提供的啟用碼"></div>
+                                    <div class="field"><label for="auth-password">設定登入密碼</label><input id="auth-password" type="password" autocomplete="new-password" minlength="8" required placeholder="至少 8 個字元"></div>
+                                    <div class="field"><label for="auth-password-confirm">再次輸入密碼</label><input id="auth-password-confirm" type="password" autocomplete="new-password" minlength="8" required placeholder="再次輸入相同密碼"></div>
+                                    <p class="password-guidance">請使用本人記得住、其他人猜不到的密碼；完成後啟用碼會立即失效。</p>` : `
+                                    <div class="field"><label for="auth-password">登入密碼</label><input id="auth-password" type="password" autocomplete="current-password" required placeholder="請輸入密碼"></div>`}
+                                <p id="auth-message" class="auth-message" role="alert"></p>
+                                ${name !== 'Nick' ? `<button class="auth-switch" type="button" onclick="openAuthDialog('${name}','${isSetup ? 'login' : 'setup'}')">${isSetup ? '已有密碼？返回登入' : '第一次使用？設定登入密碼'}</button>` : ''}
+                            </div>
+                            <div class="modal-actions">
+                                <button class="secondary-button" type="button" onclick="closeModal(true)">取消</button>
+                                <button id="auth-submit" class="primary-button" type="submit">${isSetup ? '🔐 完成首次設定' : '登入'}</button>
+                            </div>
+                        </form>
+                    </section>
+                </div>`;
+            setTimeout(() => $(isSetup ? '#activation-code' : '#auth-password')?.focus(), 50);
+        };
+
+        async function finishAuthenticatedLogin(user, requestedName) {
+            const token = await user.getIdTokenResult(true);
+            const isAdmin = token.claims.admin === true || token.claims.role === 'admin';
+            const profile = String(token.claims.profile || '');
+            if (requestedName === 'Nick' && !isAdmin) throw new Error('此帳號沒有管理者權限。');
+            if (requestedName !== 'Nick' && profile !== requestedName && !isAdmin) throw new Error('帳號身分與所選使用者不符。');
+            authState = { uid: user.uid, role: isAdmin ? 'admin' : 'staff', profile: isAdmin ? 'Nick' : profile };
+            closeModal(true);
+            if (isAdmin && requestedName === 'Nick') renderAdmin();
+            else enterProfile(requestedName);
+        }
+
+        window.submitPasswordLogin = async function(event, name) {
+            event.preventDefault();
+            const button = $('#auth-submit');
+            if (button) button.disabled = true;
+            setAuthMessage('');
+            try {
+                if (!cloud?.auth || !cloud?.authApi) throw new Error('雲端登入服務尚未連線。');
+                const password = $('#auth-password')?.value || '';
+                const credential = await cloud.authApi.signInWithEmailAndPassword(cloud.auth, AUTH_EMAILS[name], password);
+                await finishAuthenticatedLogin(credential.user, name);
+            } catch (error) {
+                setAuthMessage(authErrorMessage(error));
+                if (button) button.disabled = false;
+            }
+        };
+
+        window.completeFirstUse = async function(event, name) {
+            event.preventDefault();
+            const button = $('#auth-submit');
+            if (button) button.disabled = true;
+            setAuthMessage('');
+            try {
+                const activationCode = String($('#activation-code')?.value || '').trim();
+                const password = $('#auth-password')?.value || '';
+                const confirmation = $('#auth-password-confirm')?.value || '';
+                if (password !== confirmation) throw new Error('兩次輸入的密碼不一致。');
+                await callBackend('claimFirstUse', { username: name, activationCode, password });
+                const credential = await cloud.authApi.signInWithEmailAndPassword(cloud.auth, AUTH_EMAILS[name], password);
+                await finishAuthenticatedLogin(credential.user, name);
+                showToast(`${name}的登入密碼已設定`);
+            } catch (error) {
+                setAuthMessage(authErrorMessage(error));
+                if (button) button.disabled = false;
+            }
+        };
+
+        function adminStatus(user) {
+            if (user.disabled) return { label: '已停用', className: 'disabled' };
+            if (user.firstUsePending || !user.uid) return { label: '等待首次設定', className: 'pending' };
+            return { label: '使用中', className: 'active' };
+        }
+
+        function renderAdminPage() {
+            const activeCount = adminUsers.filter((user) => user.uid && !user.disabled).length;
+            const pendingCount = adminUsers.filter((user) => user.firstUsePending || !user.uid).length;
+            const disabledCount = adminUsers.filter((user) => user.disabled).length;
+            const userCards = adminUsers.length ? adminUsers.map((user) => {
+                const status = adminStatus(user);
+                const isNick = user.username === 'Nick';
+                return `
+                    <article class="admin-user-card">
+                        <div>
+                            <div class="admin-user-name">${isNick ? '🛡️' : profiles[user.username]?.emoji || '🌸'} ${user.username}<span class="account-status ${status.className}">${status.label}</span></div>
+                            <div class="admin-user-meta">角色：${isNick ? '主要管理者' : '記帳使用者'}${user.lastSignInTime ? ` · 最近登入：${new Date(user.lastSignInTime).toLocaleString('zh-TW')}` : ' · 尚未登入'}</div>
+                        </div>
+                        <div class="admin-user-actions">
+                            ${!isNick ? `<button class="small-action" type="button" onclick="adminViewProfile('${user.username}')">📒 查看帳目</button>` : ''}
+                            ${!isNick && (!user.uid || user.firstUsePending) ? `<button class="small-action" type="button" onclick="adminIssueActivation('${user.username}')">🔑 產生啟用碼</button>` : ''}
+                            ${user.uid ? `<button class="small-action" type="button" onclick="openAdminPasswordDialog('${user.username}')">🔒 修改密碼</button>` : ''}
+                            ${!isNick && user.uid ? `<button class="small-action ${user.disabled ? '' : 'danger'}" type="button" onclick="adminToggleDisabled('${user.username}',${user.disabled ? 'false' : 'true'})">${user.disabled ? '啟用帳號' : '停用帳號'}</button>` : ''}
+                        </div>
+                    </article>`;
+            }).join('') : '<div class="admin-user-card"><div>正在載入使用者資料…</div></div>';
+            app.innerHTML = `
+                ${topbar('管理者後台')}
+                <main class="admin-page">
+                    <section class="admin-hero"><div><p class="eyebrow">🛡️ Nick 管理中心</p><h1>使用者與帳目管理</h1><p>管理登入狀態、首次設定、密碼與各使用者的結賬紀錄。</p></div><button class="primary-button" type="button" onclick="loadAdminUsers()">↻ 重新整理</button></section>
+                    <section class="admin-summary">
+                        <div class="admin-stat"><span>使用中帳號</span><strong>${activeCount}</strong></div>
+                        <div class="admin-stat"><span>等待首次設定</span><strong>${pendingCount}</strong></div>
+                        <div class="admin-stat"><span>已停用帳號</span><strong>${disabledCount}</strong></div>
+                    </section>
+                    <section class="admin-users">${userCards}</section>
+                </main>`;
+        }
+
+        function renderAdmin() {
+            if (authState.role !== 'admin') { renderLogin(); return; }
+            if (unsubscribeProfile) unsubscribeProfile();
+            unsubscribeProfile = null;
+            username = 'Nick';
+            currentView = 'admin';
+            currentSelection = null;
+            renderAdminPage();
+            loadAdminUsers();
+        }
+        window.renderAdmin = renderAdmin;
+
+        window.loadAdminUsers = async function() {
+            try {
+                const result = await callBackend('adminListUsers');
+                adminUsers = Array.isArray(result?.users) ? result.users : [];
+                if (currentView === 'admin') renderAdminPage();
+            } catch (error) {
+                showToast(authErrorMessage(error));
+            }
+        };
+
+        window.adminViewProfile = function(name) {
+            if (authState.role !== 'admin' || !profiles[name]) return;
+            enterProfile(name);
+        };
+
+        window.adminIssueActivation = async function(name) {
+            try {
+                const result = await callBackend('adminIssueActivation', { username: name });
+                modalRoot.innerHTML = `
+                    <div class="modal-backdrop" role="presentation" onclick="if(event.target===this) closeModal(true)">
+                        <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="activation-title">
+                            <div class="modal-header"><div><h2 id="activation-title">🔑 ${name}的首次啟用碼</h2><p>請私下交給本人；完成首次設定後立即失效。</p></div><button class="modal-close" type="button" onclick="closeModal(true)">×</button></div>
+                            <div class="modal-body"><div class="activation-code">${escapeAttribute(result.activationCode || '')}</div><p class="touch-hint">有效期限：${new Date(result.expiresAt).toLocaleString('zh-TW')}</p></div>
+                            <div class="modal-actions"><button class="primary-button" type="button" onclick="closeModal(true)">完成</button></div>
+                        </section>
+                    </div>`;
+            } catch (error) { showToast(authErrorMessage(error)); }
+        };
+
+        window.openAdminPasswordDialog = function(name) {
+            modalRoot.innerHTML = `
+                <div class="modal-backdrop" role="presentation" onclick="if(event.target===this) closeModal(true)">
+                    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="password-title">
+                        <div class="modal-header"><div><h2 id="password-title">🔒 修改${name}的密碼</h2><p>儲存後舊密碼會立即失效，現有登入工作階段也會撤銷。</p></div><button class="modal-close" type="button" onclick="closeModal(true)">×</button></div>
+                        <form onsubmit="adminSetPassword(event,'${name}')"><div class="modal-body">
+                            <div class="field"><label for="new-password">新密碼</label><input id="new-password" type="password" minlength="8" autocomplete="new-password" required placeholder="至少 8 個字元"></div>
+                            <div class="field"><label for="new-password-confirm">再次輸入新密碼</label><input id="new-password-confirm" type="password" minlength="8" autocomplete="new-password" required></div>
+                            <p id="auth-message" class="auth-message" role="alert"></p>
+                        </div><div class="modal-actions"><button class="secondary-button" type="button" onclick="closeModal(true)">取消</button><button id="auth-submit" class="primary-button" type="submit">儲存新密碼</button></div></form>
+                    </section>
+                </div>`;
+            setTimeout(() => $('#new-password')?.focus(), 50);
+        };
+
+        window.adminSetPassword = async function(event, name) {
+            event.preventDefault();
+            const password = $('#new-password')?.value || '';
+            const confirmation = $('#new-password-confirm')?.value || '';
+            if (password !== confirmation) { setAuthMessage('兩次輸入的密碼不一致。'); return; }
+            const button = $('#auth-submit');
+            if (button) button.disabled = true;
+            try {
+                await callBackend('adminSetPassword', { username: name, password });
+                closeModal(true);
+                showToast(`${name}的密碼已更新`);
+                if (name === 'Nick') await window.logout();
+                else loadAdminUsers();
+            } catch (error) {
+                setAuthMessage(authErrorMessage(error));
+                if (button) button.disabled = false;
+            }
+        };
+
+        window.adminToggleDisabled = async function(name, disabled) {
+            if (!confirm(`確定要${disabled ? '停用' : '啟用'}${name}的帳號嗎？`)) return;
+            try {
+                await callBackend('adminSetDisabled', { username: name, disabled });
+                showToast(`${name}帳號已${disabled ? '停用' : '啟用'}`);
+                loadAdminUsers();
+            } catch (error) { showToast(authErrorMessage(error)); }
+        };
+
+        window.changeYear = function(delta) {
+            currentYear = Math.min(2100, Math.max(2000, currentYear + delta));
+            renderCalendar();
+        };
+
+        window.renderCalendar = renderCalendar;
+
+        window.openDateDialog = function(year, month, slot) {
+            const record = getRecord(year, month, slot);
+            const existing = record?.date || '';
+            const monthStart = `${year}-${pad(month)}-01`;
+            const monthEnd = `${year}-${pad(month)}-${pad(lastDayOfMonth(year, month))}`;
+            modalRoot.innerHTML = `
+                <div class="modal-backdrop" role="presentation" onclick="if(event.target===this) closeModal()">
+                    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="date-dialog-title">
+                        <div class="modal-header">
+                            <div><h2 id="date-dialog-title">📅 設定結賬日期</h2><p>${year} 年 ${month} 月 · 第 ${slot} 次結賬</p></div>
+                            <button class="modal-close" type="button" onclick="closeModal()" aria-label="關閉">×</button>
+                        </div>
+                        <form onsubmit="saveClosingDate(event,${year},${month},${slot})">
+                            <div class="modal-body">
+                                <div class="field">
+                                    <label for="closing-date">結賬日期 <span class="field-note">限本月份</span></label>
+                                    <input id="closing-date" type="date" min="${monthStart}" max="${monthEnd}" value="${existing}" required>
+                                </div>
+                            </div>
+                            <div class="modal-actions">
+                                <button class="secondary-button" type="button" onclick="closeModal()">取消</button>
+                                <button class="primary-button" type="submit">${existing ? '更新日期' : '💾 儲存並進入'}</button>
+                            </div>
+                        </form>
+                    </section>
+                </div>`;
+            setTimeout(() => $('#closing-date')?.focus(), 50);
+        };
+
+        window.saveClosingDate = function(event, year, month, slot) {
+            event.preventDefault();
+            const date = $('#closing-date')?.value;
+            if (!date) return;
+            const record = getRecord(year, month, slot, true);
+            record.date = date;
+            record.updatedAt = isoNow();
+            currentSelection = { year, month, slot };
+            touchAndSave();
+            closeModal(true);
+            renderSummary();
+            showToast('結賬日期已儲存');
+        };
+
+        window.openSummary = function(year, month, slot) {
+            const record = getRecord(year, month, slot);
+            if (!record?.date) { window.openDateDialog(year, month, slot); return; }
+            currentSelection = { year, month, slot };
+            renderSummary();
+        };
+
+        function amountInput(id, label, value, note = '') {
+            const safeValue = value === '' || value === undefined || value === null ? '' : amount(value);
+            return `
+                <div class="field">
+                    <label for="${id}">${label}${note ? `<span class="field-note">${note}</span>` : ''}</label>
+                    <div class="money-input"><input id="${id}" data-money-input data-branch-input type="number" inputmode="decimal" min="0" step="1" value="${safeValue}" placeholder="可留空"></div>
+                </div>`;
+        }
+
+        function ticketAmountInput(value, cannotCheckout) {
+            const safeValue = value === '' || value === undefined || value === null ? '' : amount(value);
+            return `
+                <div class="field">
+                    <div class="field-title-row">
+                        <label for="amount-ticket">售票機結帳金額</label>
+                        <label class="checkout-toggle" for="cannot-checkout">
+                            <input id="cannot-checkout" data-branch-input type="checkbox" ${cannotCheckout ? 'checked' : ''}>
+                            <span>無法結帳</span>
+                        </label>
+                    </div>
+                    <div class="money-input"><input id="amount-ticket" data-money-input data-branch-input type="number" inputmode="decimal" min="0" step="1" value="${safeValue}" placeholder="可留空"></div>
+                </div>`;
+        }
+
+        function expenseInput(index, item, value) {
+            const safeValue = value === '' || value === undefined || value === null ? '' : amount(value);
+            return `
+                <div class="expense-card">
+                    <div class="expense-heading"><span>🧾 零用金支出${index}</span><span class="expense-optional">可留空</span></div>
+                    <div class="expense-grid">
+                        <div class="field">
+                            <label for="petty-item-${index}">支出項目</label>
+                            <input id="petty-item-${index}" data-branch-input type="text" maxlength="40" value="${escapeAttribute(item)}" placeholder="例如：清潔用品">
+                        </div>
+                        <div class="field">
+                            <label for="amount-petty-${index}">支出金額</label>
+                            <div class="money-input"><input id="amount-petty-${index}" data-money-input data-branch-input type="number" inputmode="decimal" min="0" step="1" value="${safeValue}" placeholder="可留空"></div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        window.openBranchEditor = function(branch) {
+            if (!currentSelection) return;
+            const record = getRecord(currentSelection.year, currentSelection.month, currentSelection.slot, true);
+            const data = record.branches?.[branch] || { ticket: '', bills: '', coins: '', petty: '' };
+            const pettyValues = pettyInputValues(data);
+            branchDirty = false;
+            modalRoot.innerHTML = `
+                <div class="modal-backdrop" role="presentation" onclick="if(event.target===this) closeModal()">
+                    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="branch-dialog-title">
+                        <div class="modal-header">
+                            <div><h2 id="branch-dialog-title">💈 ${branch}分店</h2><p>${formatDate(record.date, true)} · 輸入本次結賬金額</p></div>
+                            <button class="modal-close" type="button" onclick="closeModal()" aria-label="關閉">×</button>
+                        </div>
+                        <form id="branch-form" onsubmit="saveBranch(event,'${branch}')">
+                            <div class="modal-body">
+                                ${ticketAmountInput(data.ticket, Boolean(data.cannotCheckout))}
+                                ${amountInput('amount-bills', '紙鈔收入', data.bills)}
+                                ${amountInput('amount-coins', '硬幣收入', data.coins)}
+                                <div class="calculation-panel single-calculation" aria-live="polite">
+                                    <div class="calc-item"><span class="calc-label">現金合計</span><strong id="preview-cash-total" class="calc-value">NT$ 0</strong></div>
+                                </div>
+                                <div class="expense-list">
+                                    ${expenseInput(1, data.pettyItem1, pettyValues[0])}
+                                    ${expenseInput(2, data.pettyItem2, pettyValues[1])}
+                                    ${expenseInput(3, data.pettyItem3, pettyValues[2])}
+                                </div>
+                                <div class="calculation-panel three-column" aria-live="polite">
+                                    <div class="calc-item"><span class="calc-label">零用金支出合計</span><strong id="preview-petty-total" class="calc-value">NT$ 0</strong></div>
+                                    <div class="calc-item"><span class="calc-label">實際收入</span><strong id="preview-actual-income" class="calc-value">NT$ 0</strong></div>
+                                    <div id="preview-diff-card" class="calc-item"><span class="calc-label">正負差額</span><strong id="preview-diff" class="calc-value">NT$ 0</strong></div>
+                                </div>
+                                <p class="touch-hint">📱 點選金額欄位後，手機與 iPad 會自動開啟數字鍵盤。</p>
+                            </div>
+                            <div class="modal-actions">
+                                <button class="secondary-button" type="button" onclick="closeModal()">取消</button>
+                                <button class="primary-button" type="submit">💾 儲存金額</button>
+                            </div>
+                        </form>
+                    </section>
+                </div>`;
+            document.querySelectorAll('[data-branch-input]').forEach((input) => {
+                input.addEventListener('input', () => { branchDirty = true; updateBranchPreview(); });
+            });
+            document.querySelectorAll('[data-money-input]').forEach((input) => {
+                input.addEventListener('focus', () => input.select());
+                input.addEventListener('wheel', (event) => {
+                    if (event.ctrlKey) return;
+                    const scroller = input.closest('.modal-card');
+                    const multiplier = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? (scroller?.clientHeight || 1) : 1;
+                    if (document.activeElement === input) input.blur();
+                    if (scroller) scroller.scrollTop += event.deltaY * multiplier;
+                    event.preventDefault();
+                }, { passive: false });
+            });
+            updateBranchPreview();
+            setTimeout(() => $('#amount-ticket')?.focus(), 50);
+        };
+
+        function formAmount(id) { return amount($(id)?.value); }
+        function formText(id) { return String($(id)?.value || '').trim(); }
+
+        function formPettyTotal() {
+            return [1, 2, 3].reduce((total, index) => total + formAmount(`#amount-petty-${index}`), 0);
+        }
+
+        function updateBranchPreview() {
+            const cashTotal = formAmount('#amount-bills') + formAmount('#amount-coins');
+            const petty = formPettyTotal();
+            const actualIncome = cashTotal + petty;
+            const diff = actualIncome - formAmount('#amount-ticket');
+            const cashTotalEl = $('#preview-cash-total');
+            const pettyTotalEl = $('#preview-petty-total');
+            const actualIncomeEl = $('#preview-actual-income');
+            const diffEl = $('#preview-diff');
+            const diffCard = $('#preview-diff-card');
+            if (cashTotalEl) cashTotalEl.textContent = `NT$ ${money(cashTotal)}`;
+            if (pettyTotalEl) pettyTotalEl.textContent = `NT$ ${money(petty)}`;
+            if (actualIncomeEl) actualIncomeEl.textContent = `NT$ ${money(actualIncome)}`;
+            if (diffEl) {
+                diffEl.textContent = `NT$ ${money(diff)}`;
+                diffEl.style.color = diff > 0 ? 'var(--green)' : diff < 0 ? 'var(--red)' : 'var(--navy)';
+            }
+            if (diffCard) {
+                diffCard.classList.toggle('diff-positive', diff > 0);
+                diffCard.classList.toggle('diff-negative', diff < 0);
+            }
+        }
+
+        window.saveBranch = function(event, branch) {
+            event.preventDefault();
+            if (!currentSelection) return;
+            const record = getRecord(currentSelection.year, currentSelection.month, currentSelection.slot, true);
+            const petty1 = formAmount('#amount-petty-1');
+            const petty2 = formAmount('#amount-petty-2');
+            const petty3 = formAmount('#amount-petty-3');
+            record.branches[branch] = {
+                ticket: formAmount('#amount-ticket'),
+                bills: formAmount('#amount-bills'),
+                coins: formAmount('#amount-coins'),
+                petty: petty1 + petty2 + petty3,
+                petty1,
+                petty2,
+                petty3,
+                pettyItem1: formText('#petty-item-1'),
+                pettyItem2: formText('#petty-item-2'),
+                pettyItem3: formText('#petty-item-3'),
+                cannotCheckout: Boolean($('#cannot-checkout')?.checked),
+                saved: true,
+                updatedAt: isoNow()
+            };
+            record.updatedAt = isoNow();
+            branchDirty = false;
+            touchAndSave();
+            closeModal(true);
+            renderSummary();
+            showToast(`${branch}分店金額已儲存`);
+        };
+
+        window.closeModal = function(force = false) {
+            if (!force && branchDirty && modalRoot.innerHTML && !confirm('尚未儲存輸入內容，確定要離開嗎？')) return;
+            branchDirty = false;
+            modalRoot.innerHTML = '';
+        };
+
+        function touchAndSave() {
+            userData.collectionName = COLLECTION_NAME;
+            userData.profile = username;
+            userData.updatedAt = isoNow();
+            saveLocalData();
+            saveCloudData();
+        }
+
+        async function saveCloudData() {
+            if (!cloud || !username) return;
+            connectionStatus = 'saving';
+            updateConnectionBadges();
+            try {
+                await cloud.setDoc(cloud.profileRef(), structuredClone(userData));
+                connectionStatus = 'online';
+            } catch (error) {
+                console.warn('Accounting cloud save failed', error);
+                connectionStatus = 'offline';
+            }
+            updateConnectionBadges();
+        }
+
+        async function attachProfileListener() {
+            if (unsubscribeProfile) unsubscribeProfile();
+            unsubscribeProfile = null;
+            if (!cloud || !username) return;
+            const profileName = username;
+            let firstSnapshot = true;
+            unsubscribeProfile = cloud.onSnapshot(cloud.profileRef(), async (snapshot) => {
+                if (username !== profileName) return;
+                if (!snapshot.exists()) {
+                    if (firstSnapshot) await saveCloudData();
+                    firstSnapshot = false;
+                    return;
+                }
+                const remote = normalizeUserData(snapshot.data(), profileName);
+                if (firstSnapshot && Date.parse(userData.updatedAt || 0) > Date.parse(remote.updatedAt || 0)) {
+                    firstSnapshot = false;
+                    await saveCloudData();
+                    return;
+                }
+                firstSnapshot = false;
+                userData = remote;
+                saveLocalData();
+                if (!modalRoot.innerHTML) {
+                    if (currentView === 'calendar') renderCalendar();
+                    if (currentView === 'summary') renderSummary();
+                }
+            }, (error) => {
+                console.warn('Accounting cloud listener failed', error);
+                connectionStatus = 'offline';
+                updateConnectionBadges();
+            });
+        }
+
+        async function initCloud() {
+            try {
+                const [{ initializeApp }, authApi, firestoreApi, functionsApi] = await Promise.all([
+                    import('https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js'),
+                    import('https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js'),
+                    import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js'),
+                    import('https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js')
+                ]);
+                const actualConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
+                const firebaseApp = initializeApp(actualConfig, APP_NAMESPACE);
+                const auth = authApi.getAuth(firebaseApp);
+                const db = firestoreApi.getFirestore(firebaseApp);
+                const functions = functionsApi.getFunctions(firebaseApp, 'us-central1');
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await authApi.signInWithCustomToken(auth, __initial_auth_token);
+                }
+                cloud = {
+                    auth,
+                    authApi,
+                    functions,
+                    functionsApi,
+                    setDoc: firestoreApi.setDoc,
+                    onSnapshot: firestoreApi.onSnapshot,
+                    profileRef: () => firestoreApi.doc(db, 'artifacts', APP_NAMESPACE, 'public', 'data', PROFILE_COLLECTION, username)
+                };
+                connectionStatus = 'online';
+                updateConnectionBadges();
+                authApi.onAuthStateChanged(auth, async (user) => {
+                    if (!user) return;
+                    if (user.isAnonymous) { await authApi.signOut(auth); return; }
+                    try {
+                        const token = await user.getIdTokenResult();
+                        const isAdmin = token.claims.admin === true || token.claims.role === 'admin';
+                        const profile = String(token.claims.profile || '');
+                        authState = { uid: user.uid, role: isAdmin ? 'admin' : 'staff', profile: isAdmin ? 'Nick' : profile };
+                        if (currentView === 'login' && !modalRoot.innerHTML) {
+                            if (isAdmin) renderAdmin();
+                            else if (profiles[profile]) enterProfile(profile);
+                        }
+                    } catch (error) {
+                        console.warn('Accounting auth restore failed', error);
+                    }
+                });
+                if (username && auth.currentUser) attachProfileListener();
+            } catch (error) {
+                console.warn('Accounting is using local storage', error);
+                connectionStatus = 'offline';
+                updateConnectionBadges();
+            }
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && modalRoot.innerHTML) window.closeModal();
+        });
+
+        renderLogin();
+        initCloud();
+    </script>
+</body>
+</html>
