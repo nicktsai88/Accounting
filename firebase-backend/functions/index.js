@@ -11,6 +11,7 @@ const db = getFirestore();
 const REGION = 'us-central1';
 const USERS_COLLECTION = 'Accounting_users';
 const AUDIT_COLLECTION = 'Accounting_audit';
+const ACTIVATION_TTL_MS = 24 * 60 * 60 * 1000;
 const ACCOUNT_EMAILS = {
   Nick: 'nick@xishihaircut.internal',
   '小雯': 'xiaowen@xishihaircut.internal',
@@ -93,7 +94,7 @@ exports.adminIssueActivation = onCall({ region: REGION }, async (request) => {
     throw new HttpsError('failed-precondition', '此帳號已完成首次設定。');
   }
   const activationCode = crypto.randomBytes(9).toString('base64url').toUpperCase();
-  const expiresAt = Timestamp.fromMillis(Date.now() + 30 * 60 * 1000);
+  const expiresAt = Timestamp.fromMillis(Date.now() + ACTIVATION_TTL_MS);
   await db.collection(USERS_COLLECTION).doc(username).set({
     username,
     role: 'staff',
