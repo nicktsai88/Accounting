@@ -274,8 +274,8 @@
 
         .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); }
         .summary-table { width: 100%; min-width: 0; table-layout: fixed; border-collapse: separate; border-spacing: 0; }
-        .summary-table th { position: sticky; top: 0; z-index: 2; width: 12.28%; padding: 16px 8px; color: #fff; background: linear-gradient(135deg, #a75b7c, #c87499); font-size: 16px; letter-spacing: 0; line-height: 1.4; text-align: center; white-space: normal; }
-        .summary-table th:first-child { left: 0; z-index: 4; width: 14%; text-align: left; }
+        .summary-table th { position: sticky; top: 0; z-index: 2; width: 10.875%; padding: 16px 7px; color: #fff; background: linear-gradient(135deg, #a75b7c, #c87499); font-size: 16px; letter-spacing: 0; line-height: 1.4; text-align: center; white-space: normal; }
+        .summary-table th:first-child { left: 0; z-index: 4; width: 13%; text-align: left; }
         .summary-table td { height: 70px; padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: right; font-size: 16px; font-variant-numeric: tabular-nums; font-weight: 800; white-space: nowrap; }
         .summary-table tbody tr:last-child td { border-bottom: 0; }
         .summary-table tbody tr:hover td { background: #fff5f8; }
@@ -305,6 +305,8 @@
         .locked-cell.empty { color: #b5bfc5; font-weight: 600; }
         .diff-positive { color: var(--green) !important; background: var(--green-soft) !important; box-shadow: inset 0 0 0 2px #6ee7a3, inset 0 0 20px rgba(34,197,94,.28); text-shadow: 0 0 9px rgba(34,197,94,.38); }
         .diff-negative { color: var(--red) !important; background: var(--red-soft) !important; box-shadow: inset 0 0 0 2px #ff7a9e, inset 0 0 20px rgba(244,63,94,.3); text-shadow: 0 0 9px rgba(244,63,94,.38); }
+        .status-cell { text-align: center !important; }
+        .checkout-alert { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 7px 9px; border: 2px solid #ff4d7d; border-radius: 10px; color: #e11d48; background: #fff0f4; box-shadow: 0 0 14px rgba(255,45,101,.5), inset 0 0 12px rgba(255,77,125,.16); text-shadow: 0 0 8px rgba(225,29,72,.42); font-size: 14px; font-weight: 900; white-space: nowrap; }
         .total-row td { position: sticky; bottom: 0; z-index: 1; color: var(--navy); background: #ffe8f0 !important; border-top: 2px solid #f3b5cd; border-bottom: 0; font-weight: 900; }
         .total-row td:first-child { z-index: 3; }
 
@@ -330,6 +332,11 @@
         .field-note { color: var(--muted); font-size: 13px; font-weight: 700; }
         .field input { width: 100%; min-height: 56px; padding: 13px 14px; border: 1px solid #efb5cd; border-radius: 13px; background: #fff; color: var(--ink); font-size: 20px; font-weight: 800; }
         .field input:focus { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(217,154,43,.12); outline: 0; }
+        .field-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+        .field-title-row > label { margin: 0; }
+        .checkout-toggle { display: inline-flex !important; align-items: center; justify-content: flex-start !important; gap: 8px !important; margin: 0 !important; padding: 8px 11px; border: 1px solid #ffb4ca; border-radius: 11px; color: #c72f5a !important; background: #fff2f6; cursor: pointer; white-space: nowrap; }
+        .checkout-toggle input { appearance: auto; width: 20px !important; height: 20px; min-height: 20px !important; flex: 0 0 20px; margin: 0; padding: 0 !important; border: 0 !important; border-radius: 4px; box-shadow: none !important; accent-color: #e11d48; cursor: pointer; }
+        .checkout-toggle span { font-size: 15px; font-weight: 900; }
         input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { appearance: none; margin: 0; }
         input[type="number"] { appearance: textfield; }
         .money-input { position: relative; }
@@ -745,7 +752,7 @@
             if (!record?.date) { renderCalendar(); return; }
             const branches = profiles[username].branches;
             const savedCount = branches.filter((branch) => record.branches?.[branch]?.saved).length;
-            const totals = { ticket: 0, bills: 0, coins: 0, cashTotal: 0, petty: 0, actualIncome: 0, diff: 0 };
+            const totals = { ticket: 0, bills: 0, coins: 0, cashTotal: 0, petty: 0, actualIncome: 0, diff: 0, cannotCheckout: 0 };
 
             const rows = branches.map((branch) => {
                 const data = record.branches?.[branch] || {};
@@ -759,6 +766,7 @@
                     totals.petty += calc.pettyTotal;
                     totals.actualIncome += calc.actualIncome;
                     totals.diff += calc.diff;
+                    if (data.cannotCheckout) totals.cannotCheckout += 1;
                 }
                 const diffClass = !saved ? 'empty' : calc.diff > 0 ? 'diff-positive' : calc.diff < 0 ? 'diff-negative' : '';
                 return `
@@ -779,6 +787,7 @@
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true"${saved && pettyItemSummary(data) ? ` title="支出項目：${escapeAttribute(pettyItemSummary(data))}"` : ''}>${moneyCell(calc.pettyTotal, saved)}</td>
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(calc.actualIncome, saved)}</td>
                         <td class="locked-cell ${diffClass}" aria-disabled="true">${moneyCell(calc.diff, saved)}</td>
+                        <td class="locked-cell status-cell ${saved ? '' : 'empty'}" aria-disabled="true">${saved && data.cannotCheckout ? '<span class="checkout-alert">⚠️ 無法結帳</span>' : '—'}</td>
                     </tr>`;
             }).join('');
 
@@ -806,6 +815,7 @@
                                 <th scope="col">🧾 零用金支出合計</th>
                                 <th scope="col">💰 實際收入</th>
                                 <th scope="col">⚖️ 正負差額</th>
+                                <th scope="col">⚠️ 結帳狀態</th>
                             </tr></thead>
                             <tbody>${rows}</tbody>
                             <tfoot><tr class="total-row">
@@ -817,6 +827,7 @@
                                 <td>NT$ ${money(totals.petty)}</td>
                                 <td>NT$ ${money(totals.actualIncome)}</td>
                                 <td class="${totalDiffClass}">NT$ ${money(totals.diff)}</td>
+                                <td class="status-cell">${totals.cannotCheckout ? `<span class="checkout-alert">⚠️ ${totals.cannotCheckout} 間無法結帳</span>` : '—'}</td>
                             </tr></tfoot>
                         </table>
                     </div>
@@ -909,6 +920,21 @@
                 </div>`;
         }
 
+        function ticketAmountInput(value, cannotCheckout) {
+            const safeValue = value === '' || value === undefined || value === null ? '' : amount(value);
+            return `
+                <div class="field">
+                    <div class="field-title-row">
+                        <label for="amount-ticket">售票機結帳金額</label>
+                        <label class="checkout-toggle" for="cannot-checkout">
+                            <input id="cannot-checkout" data-branch-input type="checkbox" ${cannotCheckout ? 'checked' : ''}>
+                            <span>無法結帳</span>
+                        </label>
+                    </div>
+                    <div class="money-input"><input id="amount-ticket" data-money-input data-branch-input type="number" inputmode="decimal" min="0" step="1" value="${safeValue}" placeholder="可留空"></div>
+                </div>`;
+        }
+
         function expenseInput(index, item, value) {
             const safeValue = value === '' || value === undefined || value === null ? '' : amount(value);
             return `
@@ -942,7 +968,7 @@
                         </div>
                         <form id="branch-form" onsubmit="saveBranch(event,'${branch}')">
                             <div class="modal-body">
-                                ${amountInput('amount-ticket', '售票機結帳金額', data.ticket)}
+                                ${ticketAmountInput(data.ticket, Boolean(data.cannotCheckout))}
                                 ${amountInput('amount-bills', '紙鈔收入', data.bills)}
                                 ${amountInput('amount-coins', '硬幣收入', data.coins)}
                                 <div class="calculation-panel single-calculation" aria-live="polite">
@@ -1033,6 +1059,7 @@
                 pettyItem1: formText('#petty-item-1'),
                 pettyItem2: formText('#petty-item-2'),
                 pettyItem3: formText('#petty-item-3'),
+                cannotCheckout: Boolean($('#cannot-checkout')?.checked),
                 saved: true,
                 updatedAt: isoNow()
             };
