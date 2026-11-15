@@ -340,6 +340,14 @@
         .money-input { position: relative; }
         .money-input::before { content: "NT$"; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; font-weight: 900; pointer-events: none; }
         .money-input input { padding-left: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+        .expense-list { display: grid; gap: 12px; margin: 4px 0 18px; }
+        .expense-card { padding: 15px; border: 1px solid #f0cad9; border-radius: 16px; background: #fff8fb; }
+        .expense-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; color: var(--navy); font-size: 16px; font-weight: 900; }
+        .expense-optional { color: var(--muted); font-size: 13px; font-weight: 700; }
+        .expense-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(150px, .75fr); gap: 12px; }
+        .expense-grid .field { margin-bottom: 0; }
+        .expense-grid .field label { font-size: 14px; }
+        .expense-grid .field input { min-height: 52px; font-size: 17px; }
         .calculation-panel { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; padding: 14px; border-radius: 16px; background: var(--soft); }
         .calc-item { padding: 10px; border-radius: 12px; background: #fff; }
         .calc-label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 13px; font-weight: 800; }
@@ -405,6 +413,7 @@
             .modal-header, .modal-body { padding-left: 18px; padding-right: 18px; }
             .modal-actions { position: sticky; bottom: 0; padding: 14px 18px; background: rgba(255,255,255,.96); border-top: 1px solid var(--line); backdrop-filter: blur(10px); }
             .modal-actions button { flex: 1; }
+            .expense-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 420px) {
             .profile-grid { grid-template-columns: 1fr; }
@@ -528,9 +537,42 @@
             return Number.isFinite(parsed) ? parsed : 0;
         }
 
+        function pettyAmounts(data) {
+            const hasSplitExpenses = ['petty1', 'petty2', 'petty3'].some((key) => data && Object.prototype.hasOwnProperty.call(data, key));
+            return hasSplitExpenses
+                ? [amount(data?.petty1), amount(data?.petty2), amount(data?.petty3)]
+                : [amount(data?.petty), 0, 0];
+        }
+
+        function pettyInputValues(data) {
+            const hasSplitExpenses = ['petty1', 'petty2', 'petty3'].some((key) => data && Object.prototype.hasOwnProperty.call(data, key));
+            return hasSplitExpenses
+                ? [data?.petty1 ?? '', data?.petty2 ?? '', data?.petty3 ?? '']
+                : [data?.petty ?? '', '', ''];
+        }
+
+        function pettyTotal(data) {
+            return pettyAmounts(data).reduce((total, value) => total + value, 0);
+        }
+
+        function escapeAttribute(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function pettyItemSummary(data) {
+            return [1, 2, 3]
+                .map((index) => String(data?.[`pettyItem${index}`] || '').trim())
+                .filter(Boolean)
+                .join('、');
+        }
+
         function branchCalculation(data) {
             const actual = amount(data?.bills) + amount(data?.coins);
-            const diff = amount(data?.ticket) - actual - amount(data?.petty);
+            const diff = amount(data?.ticket) - actual - pettyTotal(data);
             return { actual, diff };
         }
 
@@ -712,7 +754,7 @@
                     totals.bills += amount(data.bills);
                     totals.coins += amount(data.coins);
                     totals.actual += calc.actual;
-                    totals.petty += amount(data.petty);
+                    totals.petty += pettyTotal(data);
                     totals.ticket += amount(data.ticket);
                     totals.diff += calc.diff;
                 }
@@ -731,7 +773,7 @@
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.bills, saved)}</td>
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.coins, saved)}</td>
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(calc.actual, saved)}</td>
-                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.petty, saved)}</td>
+                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true"${saved && pettyItemSummary(data) ? ` title="支出項目：${escapeAttribute(pettyItemSummary(data))}"` : ''}>${moneyCell(pettyTotal(data), saved)}</td>
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.ticket, saved)}</td>
                         <td class="locked-cell ${diffClass}" aria-disabled="true">${moneyCell(calc.diff, saved)}</td>
                     </tr>`;
@@ -757,7 +799,7 @@
                                 <th scope="col">💵 紙鈔</th>
                                 <th scope="col">🪙 硬幣</th>
                                 <th scope="col">🧮 實際營收小計</th>
-                                <th scope="col">🧾 零用金支出</th>
+                                <th scope="col">🧾 零用金支出合計</th>
                                 <th scope="col">🎟️ 售票機應收金額</th>
                                 <th scope="col">⚖️ 正負差額</th>
                             </tr></thead>
@@ -858,7 +900,25 @@
             return `
                 <div class="field">
                     <label for="${id}">${label}${note ? `<span class="field-note">${note}</span>` : ''}</label>
-                    <div class="money-input"><input id="${id}" data-money-input type="number" inputmode="decimal" min="0" step="1" value="${safeValue}" placeholder="可留空"></div>
+                    <div class="money-input"><input id="${id}" data-money-input data-branch-input type="number" inputmode="decimal" min="0" step="1" value="${safeValue}" placeholder="可留空"></div>
+                </div>`;
+        }
+
+        function expenseInput(index, item, value) {
+            const safeValue = value === '' || value === undefined || value === null ? '' : amount(value);
+            return `
+                <div class="expense-card">
+                    <div class="expense-heading"><span>🧾 零用金支出${index}</span><span class="expense-optional">可留空</span></div>
+                    <div class="expense-grid">
+                        <div class="field">
+                            <label for="petty-item-${index}">支出項目</label>
+                            <input id="petty-item-${index}" data-branch-input type="text" maxlength="40" value="${escapeAttribute(item)}" placeholder="例如：清潔用品">
+                        </div>
+                        <div class="field">
+                            <label for="amount-petty-${index}">支出金額</label>
+                            <div class="money-input"><input id="amount-petty-${index}" data-money-input data-branch-input type="number" inputmode="decimal" min="0" step="1" value="${safeValue}" placeholder="可留空"></div>
+                        </div>
+                    </div>
                 </div>`;
         }
 
@@ -866,6 +926,7 @@
             if (!currentSelection) return;
             const record = getRecord(currentSelection.year, currentSelection.month, currentSelection.slot, true);
             const data = record.branches?.[branch] || { ticket: '', bills: '', coins: '', petty: '' };
+            const pettyValues = pettyInputValues(data);
             branchDirty = false;
             modalRoot.innerHTML = `
                 <div class="modal-backdrop" role="presentation" onclick="if(event.target===this) closeModal()">
@@ -879,12 +940,16 @@
                                 ${amountInput('amount-ticket', '售票機應收金額', data.ticket, '結帳單金額')}
                                 ${amountInput('amount-bills', '紙鈔', data.bills)}
                                 ${amountInput('amount-coins', '硬幣', data.coins)}
-                                ${amountInput('amount-petty', '零用金支出', data.petty)}
+                                <div class="expense-list">
+                                    ${expenseInput(1, data.pettyItem1, pettyValues[0])}
+                                    ${expenseInput(2, data.pettyItem2, pettyValues[1])}
+                                    ${expenseInput(3, data.pettyItem3, pettyValues[2])}
+                                </div>
                                 <div class="calculation-panel" aria-live="polite">
                                     <div class="calc-item"><span class="calc-label">實際營收小計</span><strong id="preview-actual" class="calc-value">NT$ 0</strong></div>
                                     <div class="calc-item"><span class="calc-label">正負差額</span><strong id="preview-diff" class="calc-value">NT$ 0</strong></div>
                                 </div>
-                                <p class="touch-hint">📱 點選欄位後，手機與 iPad 會自動開啟數字鍵盤。</p>
+                                <p class="touch-hint">📱 點選金額欄位後，手機與 iPad 會自動開啟數字鍵盤。</p>
                             </div>
                             <div class="modal-actions">
                                 <button class="secondary-button" type="button" onclick="closeModal()">取消</button>
@@ -893,19 +958,24 @@
                         </form>
                     </section>
                 </div>`;
-            document.querySelectorAll('[data-money-input]').forEach((input) => {
+            document.querySelectorAll('[data-branch-input]').forEach((input) => {
                 input.addEventListener('input', () => { branchDirty = true; updateBranchPreview(); });
-                input.addEventListener('focus', () => input.select());
             });
+            document.querySelectorAll('[data-money-input]').forEach((input) => input.addEventListener('focus', () => input.select()));
             updateBranchPreview();
             setTimeout(() => $('#amount-ticket')?.focus(), 50);
         };
 
         function formAmount(id) { return amount($(id)?.value); }
+        function formText(id) { return String($(id)?.value || '').trim(); }
+
+        function formPettyTotal() {
+            return [1, 2, 3].reduce((total, index) => total + formAmount(`#amount-petty-${index}`), 0);
+        }
 
         function updateBranchPreview() {
             const actual = formAmount('#amount-bills') + formAmount('#amount-coins');
-            const diff = formAmount('#amount-ticket') - actual - formAmount('#amount-petty');
+            const diff = formAmount('#amount-ticket') - actual - formPettyTotal();
             const actualEl = $('#preview-actual');
             const diffEl = $('#preview-diff');
             if (actualEl) actualEl.textContent = `NT$ ${money(actual)}`;
@@ -919,11 +989,20 @@
             event.preventDefault();
             if (!currentSelection) return;
             const record = getRecord(currentSelection.year, currentSelection.month, currentSelection.slot, true);
+            const petty1 = formAmount('#amount-petty-1');
+            const petty2 = formAmount('#amount-petty-2');
+            const petty3 = formAmount('#amount-petty-3');
             record.branches[branch] = {
                 ticket: formAmount('#amount-ticket'),
                 bills: formAmount('#amount-bills'),
                 coins: formAmount('#amount-coins'),
-                petty: formAmount('#amount-petty'),
+                petty: petty1 + petty2 + petty3,
+                petty1,
+                petty2,
+                petty3,
+                pettyItem1: formText('#petty-item-1'),
+                pettyItem2: formText('#petty-item-2'),
+                pettyItem3: formText('#petty-item-3'),
                 saved: true,
                 updatedAt: isoNow()
             };
