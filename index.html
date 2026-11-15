@@ -933,15 +933,15 @@
                             <div><h2 id="auth-dialog-title">${isSetup ? '首次設定登入密碼' : '帳號登入'}</h2><p>密碼由 Firebase 安全驗證，不會儲存在網頁原始碼。</p></div>
                             <button class="modal-close" type="button" onclick="closeModal(true)" aria-label="關閉">×</button>
                         </div>
-                        <form class="auth-form" onsubmit="${isSetup ? `completeFirstUse(event,'${name}')` : `submitPasswordLogin(event,'${name}')`}">
+                        <form class="auth-form" autocomplete="off" onsubmit="${isSetup ? `completeFirstUse(event,'${name}')` : `submitPasswordLogin(event,'${name}')`}">
                             <div class="modal-body">
                                 <div class="auth-user-badge">${emoji} 登入名稱：${name}</div>
                                 ${isSetup ? `
                                     <div class="field"><label for="activation-code">首次啟用碼</label><input id="activation-code" type="text" inputmode="text" autocomplete="one-time-code" maxlength="24" required placeholder="請輸入 Nick 提供的啟用碼"></div>
-                                    <div class="field"><label for="auth-password">設定登入密碼</label><input id="auth-password" type="password" autocomplete="new-password" minlength="8" required placeholder="至少 8 個字元"></div>
-                                    <div class="field"><label for="auth-password-confirm">再次輸入密碼</label><input id="auth-password-confirm" type="password" autocomplete="new-password" minlength="8" required placeholder="再次輸入相同密碼"></div>
+                                    <div class="field"><label for="auth-password">設定登入密碼</label><input id="auth-password" type="password" autocomplete="new-password" value="" data-lpignore="true" data-1p-ignore minlength="8" required placeholder="至少 8 個字元"></div>
+                                    <div class="field"><label for="auth-password-confirm">再次輸入密碼</label><input id="auth-password-confirm" type="password" autocomplete="new-password" value="" data-lpignore="true" data-1p-ignore minlength="8" required placeholder="再次輸入相同密碼"></div>
                                     <p class="password-guidance">請使用本人記得住、其他人猜不到的密碼；完成後啟用碼會立即失效。</p>` : `
-                                    <div class="field"><label for="auth-password">登入密碼</label><input id="auth-password" type="password" autocomplete="current-password" required placeholder="請輸入密碼"></div>`}
+                                    <div class="field"><label for="auth-password">登入密碼</label><input id="auth-password" type="password" autocomplete="off" value="" data-lpignore="true" data-1p-ignore required placeholder="請輸入密碼"></div>`}
                                 <p id="auth-message" class="auth-message" role="alert"></p>
                                 ${name !== 'Nick' ? `<button class="auth-switch" type="button" onclick="openAuthDialog('${name}','${isSetup ? 'login' : 'setup'}')">${isSetup ? '已有密碼？返回登入' : '第一次使用？設定登入密碼'}</button>` : ''}
                             </div>
@@ -952,7 +952,10 @@
                         </form>
                     </section>
                 </div>`;
-            setTimeout(() => $(isSetup ? '#activation-code' : '#auth-password')?.focus(), 50);
+            setTimeout(() => {
+                modalRoot.querySelectorAll('input[type="password"]').forEach((input) => { input.value = ''; });
+                if (isSetup) $('#activation-code')?.focus();
+            }, 50);
         };
 
         async function finishAuthenticatedLogin(user, requestedName) {
@@ -1089,14 +1092,16 @@
                 <div class="modal-backdrop" role="presentation" onclick="if(event.target===this) closeModal(true)">
                     <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="password-title">
                         <div class="modal-header"><div><h2 id="password-title">🔒 修改${name}的密碼</h2><p>儲存後舊密碼會立即失效，現有登入工作階段也會撤銷。</p></div><button class="modal-close" type="button" onclick="closeModal(true)">×</button></div>
-                        <form onsubmit="adminSetPassword(event,'${name}')"><div class="modal-body">
-                            <div class="field"><label for="new-password">新密碼</label><input id="new-password" type="password" minlength="8" autocomplete="new-password" required placeholder="至少 8 個字元"></div>
-                            <div class="field"><label for="new-password-confirm">再次輸入新密碼</label><input id="new-password-confirm" type="password" minlength="8" autocomplete="new-password" required></div>
+                        <form autocomplete="off" onsubmit="adminSetPassword(event,'${name}')"><div class="modal-body">
+                            <div class="field"><label for="new-password">新密碼</label><input id="new-password" type="password" minlength="8" autocomplete="new-password" value="" data-lpignore="true" data-1p-ignore required placeholder="至少 8 個字元"></div>
+                            <div class="field"><label for="new-password-confirm">再次輸入新密碼</label><input id="new-password-confirm" type="password" minlength="8" autocomplete="new-password" value="" data-lpignore="true" data-1p-ignore required></div>
                             <p id="auth-message" class="auth-message" role="alert"></p>
                         </div><div class="modal-actions"><button class="secondary-button" type="button" onclick="closeModal(true)">取消</button><button id="auth-submit" class="primary-button" type="submit">儲存新密碼</button></div></form>
                     </section>
                 </div>`;
-            setTimeout(() => $('#new-password')?.focus(), 50);
+            setTimeout(() => {
+                modalRoot.querySelectorAll('input[type="password"]').forEach((input) => { input.value = ''; });
+            }, 50);
         };
 
         window.adminSetPassword = async function(event, name) {
@@ -1465,3 +1470,4 @@
     </script>
 </body>
 </html>
+
