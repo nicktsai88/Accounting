@@ -6,7 +6,7 @@
 
 - 管理者密碼不寫入 HTML、GitHub 或 Firestore。
 - Nick 的 `admin` 權限由 Firebase Admin SDK 設定。
-- 小雯和彩屏透過 Nick 產生的一次性啟用碼，自行設定首次密碼。
+- 小雯和彩屏透過 Nick 產生的 24 小時一次性啟用碼，自行設定首次密碼。
 - 使用者管理與改密碼只能透過具 `admin` 權限的 Cloud Function。
 - `firestore.accounting.rules.snippet` 必須合併到現有規則，不能直接覆蓋共用專案的其他規則。
 
