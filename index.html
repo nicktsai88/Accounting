@@ -617,11 +617,14 @@
         }
 
         function branchCalculation(data) {
+            const ticketAmount = amount(data?.ticket);
+            const refundTotal = amount(data?.refundTotal);
+            const ticketReceivable = ticketAmount - refundTotal;
             const cashTotal = amount(data?.bills) + amount(data?.coins) + amount(data?.coinTransfer);
             const petty = pettyTotal(data);
             const actualIncome = cashTotal + petty;
-            const diff = actualIncome - amount(data?.ticket);
-            return { cashTotal, pettyTotal: petty, actualIncome, diff };
+            const diff = actualIncome - ticketReceivable;
+            return { ticketAmount, refundTotal, ticketReceivable, cashTotal, pettyTotal: petty, actualIncome, diff };
         }
 
         function money(value) {
@@ -794,7 +797,7 @@
             if (!record?.date) { renderCalendar(); return; }
             const branches = profiles[username].branches;
             const savedCount = branches.filter((branch) => record.branches?.[branch]?.saved).length;
-            const totals = { ticket: 0, bills: 0, coins: 0, coinTransfer: 0, cashTotal: 0, petty: 0, actualIncome: 0, diff: 0, cannotCheckout: 0 };
+            const totals = { ticketReceivable: 0, bills: 0, coins: 0, coinTransfer: 0, cashTotal: 0, petty: 0, actualIncome: 0, diff: 0, cannotCheckout: 0 };
 
             const rows = branches.map((branch) => {
                 const data = record.branches?.[branch] || {};
@@ -804,7 +807,7 @@
                     totals.bills += amount(data.bills);
                     totals.coins += amount(data.coins);
                     totals.coinTransfer += amount(data.coinTransfer);
-                    totals.ticket += amount(data.ticket);
+                    totals.ticketReceivable += calc.ticketReceivable;
                     totals.cashTotal += calc.cashTotal;
                     totals.petty += calc.pettyTotal;
                     totals.actualIncome += calc.actualIncome;
@@ -823,7 +826,7 @@
                                 </button>
                             </div>
                         </td>
-                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.ticket, saved)}</td>
+                        <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(calc.ticketReceivable, saved)}</td>
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.bills, saved)}</td>
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.coins, saved)}</td>
                         <td class="locked-cell ${saved ? '' : 'empty'}" aria-disabled="true">${moneyCell(data.coinTransfer, saved)}</td>
@@ -852,7 +855,7 @@
                         <table class="summary-table">
                             <thead><tr>
                                 <th scope="col">分店</th>
-                                <th scope="col">🎟️ 售票機結帳</th>
+                                <th scope="col">🎟️ 售票機應收</th>
                                 <th scope="col">💵 紙鈔收入</th>
                                 <th scope="col">🪙 硬幣收入</th>
                                 <th scope="col">🔄 零錢劃撥</th>
@@ -865,7 +868,7 @@
                             <tbody>${rows}</tbody>
                             <tfoot><tr class="total-row">
                                 <td>本次合計</td>
-                                <td>NT$ ${money(totals.ticket)}</td>
+                                <td>NT$ ${money(totals.ticketReceivable)}</td>
                                 <td>NT$ ${money(totals.bills)}</td>
                                 <td>NT$ ${money(totals.coins)}</td>
                                 <td>NT$ ${money(totals.coinTransfer)}</td>
@@ -1207,7 +1210,7 @@
             return `
                 <div class="field">
                     <div class="field-title-row">
-                        <label for="amount-ticket">售票機結帳</label>
+                        <label for="amount-ticket">售票機結帳金額</label>
                         <label class="checkout-toggle" for="cannot-checkout">
                             <input id="cannot-checkout" data-branch-input type="checkbox" ${cannotCheckout ? 'checked' : ''}>
                             <span>無法結帳</span>
@@ -1238,7 +1241,7 @@
         window.openBranchEditor = function(branch) {
             if (!currentSelection) return;
             const record = getRecord(currentSelection.year, currentSelection.month, currentSelection.slot, true);
-            const data = record.branches?.[branch] || { ticket: '', bills: '', coins: '', coinTransfer: '', petty: '' };
+            const data = record.branches?.[branch] || { ticket: '', refundTotal: '', bills: '', coins: '', coinTransfer: '', petty: '' };
             const pettyValues = pettyInputValues(data);
             branchDirty = false;
             modalRoot.innerHTML = `
@@ -1251,6 +1254,10 @@
                         <form id="branch-form" onsubmit="saveBranch(event,'${branch}')">
                             <div class="modal-body">
                                 ${ticketAmountInput(data.ticket, Boolean(data.cannotCheckout))}
+                                ${amountInput('amount-refund-total', '退票合計', data.refundTotal)}
+                                <div class="calculation-panel single-calculation" aria-live="polite">
+                                    <div class="calc-item"><span class="calc-label">售票機應收金額</span><strong id="preview-ticket-receivable" class="calc-value">NT$ 0</strong></div>
+                                </div>
                                 ${amountInput('amount-bills', '紙鈔收入', data.bills)}
                                 ${amountInput('amount-coins', '硬幣收入', data.coins)}
                                 ${amountInput('amount-coin-transfer', '零錢劃撥', data.coinTransfer)}
@@ -1302,15 +1309,18 @@
         }
 
         function updateBranchPreview() {
+            const ticketReceivable = formAmount('#amount-ticket') - formAmount('#amount-refund-total');
             const cashTotal = formAmount('#amount-bills') + formAmount('#amount-coins') + formAmount('#amount-coin-transfer');
             const petty = formPettyTotal();
             const actualIncome = cashTotal + petty;
-            const diff = actualIncome - formAmount('#amount-ticket');
+            const diff = actualIncome - ticketReceivable;
+            const ticketReceivableEl = $('#preview-ticket-receivable');
             const cashTotalEl = $('#preview-cash-total');
             const pettyTotalEl = $('#preview-petty-total');
             const actualIncomeEl = $('#preview-actual-income');
             const diffEl = $('#preview-diff');
             const diffCard = $('#preview-diff-card');
+            if (ticketReceivableEl) ticketReceivableEl.textContent = `NT$ ${money(ticketReceivable)}`;
             if (cashTotalEl) cashTotalEl.textContent = `NT$ ${money(cashTotal)}`;
             if (pettyTotalEl) pettyTotalEl.textContent = `NT$ ${money(petty)}`;
             if (actualIncomeEl) actualIncomeEl.textContent = `NT$ ${money(actualIncome)}`;
@@ -1333,6 +1343,7 @@
             const petty3 = formAmount('#amount-petty-3');
             record.branches[branch] = {
                 ticket: formAmount('#amount-ticket'),
+                refundTotal: formAmount('#amount-refund-total'),
                 bills: formAmount('#amount-bills'),
                 coins: formAmount('#amount-coins'),
                 coinTransfer: formAmount('#amount-coin-transfer'),
@@ -1483,3 +1494,4 @@
     </script>
 </body>
 </html>
+
